@@ -29,15 +29,11 @@ class ZigguratApplication(object):
         self._configs        = None
         self._pyramidApp     = None
 
-        rootPath = self.rootPath
-        if rootPath is None:
-            rootPath = FileUtils.createPath(os.path.expanduser('~'), self.appName, isDir=True)
-
-        self._rootPath = FileUtils.cleanupPath(rootPath)
-        if not os.path.exists(self._rootPath):
-            os.makedirs(self._rootPath)
+        rootPath = FileUtils.cleanupPath(self.rootPath)
+        if not os.path.exists(rootPath):
+            os.makedirs(rootPath)
             self.logger.write(
-                u'WARNING: Created missing application path: ' + unicode(self._rootPath))
+                u'WARNING: Created missing application path: ' + unicode(rootPath))
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -55,7 +51,7 @@ class ZigguratApplication(object):
 #___________________________________________________________________________________________________ GS: rootPath
     @property
     def rootPath(self):
-        return self._rootPath
+        return FileUtils.createPath(os.path.expanduser('~'), self.appName, isDir=True)
 
 #___________________________________________________________________________________________________ GS: environ
     @property

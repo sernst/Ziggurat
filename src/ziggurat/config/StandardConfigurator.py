@@ -34,7 +34,8 @@ class StandardConfigurator(Configurator):
         """Creates a new instance of StandardConfigurator."""
         super(StandardConfigurator, self).__init__(**kwargs)
 
-        self._app = app
+        self._isPopulated     = False
+        self._app             = app
         self._rootViewPackage = rootViewPackage
         self.add_request_method(self._getMyAppRequestProperty, 'ziggurat', reify=True)
 
@@ -61,6 +62,10 @@ class StandardConfigurator(Configurator):
 
 #___________________________________________________________________________________________________ populateConfigs
     def populateConfigs(self):
+        if self._isPopulated:
+            return
+
+        self._isPopulated = True
         self._createRoutes()
 
         existingSettings = self.get_settings()
@@ -80,11 +85,8 @@ class StandardConfigurator(Configurator):
         self._populateSettings(existingSettings, settings)
         self.add_settings(settings)
 
-#===================================================================================================
-#                                                                               P R O T E C T E D
-
 #___________________________________________________________________________________________________ _addRouteItem
-    def _addRouteItem(self, name, uriPattern, className, renderer =None, package =None):
+    def addRouteItem(self, name, uriPattern, className, renderer =None, package =None):
         """Adds a route to the registry."""
 
         # Adds optional end slash argument to URLs that don't enforce an end slash themselves
@@ -101,8 +103,11 @@ class StandardConfigurator(Configurator):
         self.add_view(package, route_name=name, renderer=renderer)
 
 #___________________________________________________________________________________________________ _addStaticRouteItem
-    def _addStaticRouteItem(self, name, path):
+    def addStaticRouteItem(self, name, path):
         self.add_static_view(name=name, path=path)
+
+#===================================================================================================
+#                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _getMyAppRequestProperty
     def _getMyAppRequestProperty(self, request):
