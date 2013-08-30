@@ -79,7 +79,7 @@ class ZigguratBaseView(object):
     def outgoingTimecode(self):
         return self._outgoingTimecode
 
-#___________________________________________________________________________________________________ GS: log
+#___________________________________________________________________________________________________ GS: logger
     @property
     def logger(self):
         return self._logger

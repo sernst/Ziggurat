@@ -5,6 +5,7 @@
 from pyramid.renderers import render_to_response
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.ClassUtils import ClassUtils
 from pyaid.time.TimeUtils import TimeUtils
 
 from ziggurat.view.ZigguratDataView import ZigguratDataView
@@ -28,16 +29,14 @@ class ApiRouterView(ZigguratDataView):
 
         # Determine root package
         if not rootPackage:
-            self._root = '.'.join(self.__module__.split('.')[:-1])
+            self._root = ClassUtils.getModulePackage(self.__class__, 1)
         else:
             self._root = rootPackage
 
         # Use root package and category to specify import
-        self._package           = self._root + '.' + self.category + 'Controller'
         self._signature         = self.getArg('sg', '')
         self._args              = self.getArg('args', None)
         self._incomingTimestamp = None
-
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -117,16 +116,26 @@ class ApiRouterView(ZigguratDataView):
     def _createResponse(self):
         super(ApiRouterView, self)._createResponse()
 
-        try:
-            # Import the View Assembly Class (VAC)
-            res    = __import__(self._package, globals(), locals(), [self.category])
-            Source = getattr(res, self.category)
+        controllerClass = self.category + 'Controller'
+        package         = self._root + '.' + controllerClass
 
-            # Execute the View Assembly Method (VAM)
-            result = getattr(Source, self.action)(self)
+        try:
+            # Import the Controller class
+            res             = __import__(package, globals(), locals(), [controllerClass])
+            ControllerClass = getattr(res, controllerClass)
+
+            controller = ControllerClass(self)
+            if controller.authorizeApiAction():
+                result = getattr(controller, self.action)()
+            else:
+                result = ViewResponse(
+                    'ERROR:' + self.apiID,
+                    'Unauthorized Request',
+                    'This unauthorized request was rejected'
+                )
+
             if isinstance(result, ViewResponse):
                 self._explicitResponse = result
-
             # If an explicit response is set render that instead:
             if self._explicitResponse:
                 self._createExplicitResponse()
@@ -135,9 +144,10 @@ class ApiRouterView(ZigguratDataView):
         except Exception, err:
             self._logger.writeError([
                 u'API ROUTING FAILURE: ' + unicode(self.__module__.split('.')[-1]),
-                u'Package: ' + unicode(self._package),
+                u'Package: ' + unicode(package),
+                u'Controller: ' + unicode(controllerClass),
                 u'Category: ' + unicode(self.category),
-                u'ID: ' + unicode(self.action)
+                u'Action: ' + unicode(self.action)
             ], err)
             self._explicitResponse = ViewResponse(
                 'ERROR:' + self.apiID,
@@ -147,8 +157,6 @@ class ApiRouterView(ZigguratDataView):
             self._createExplicitResponse()
             return
 
-        self._response['__tcode__'] = self.outgoingTimecode
+        self._response['__tcode__']         = self.outgoingTimecode
         self._request.response_content_type = 'application/javascript'
         self._response = render_to_response('json', self._response, self._request)
-
-
