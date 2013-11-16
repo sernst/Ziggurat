@@ -2,20 +2,18 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
-from sqlalchemy import create_engine, exc, event
+from sqlalchemy import exc
+from sqlalchemy import event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from sqlalchemy.pool import Pool
-from sqlalchemy.pool import QueuePool
 
-from vmi.config.Config import CONFIG
-from vmi.config import Databases
-from vmi.config.Environment import ENVIRONMENT
-from vmi.models.shared.SQLAlchemyResult import SQLAlchemyResult
-from vmi.models.shared.metas.AbstractModelsMeta import AbstractModelsMeta
-from vmi.models.shared.metas.ExternalKeyProperty import ExternalKeyProperty
-from vmi.models.shared.session.SQLAlchemyMasterSession import SQLAlchemyMasterSession
-from pyaid.number.IntUtils import IntUtils
+from ziggurat.sqlalchemy.ExternalKeyProperty import ExternalKeyProperty
+from ziggurat.sqlalchemy.SqlAlchemyResult import SqlAlchemyResult
+from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
+from ziggurat.sqlalchemy.session.SqlAlchemyMasterSession import SqlAlchemyMasterSession
+# AS NEEDED: from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
+# AS NEEDED: from ziggurat.sqlalchemy.session.SqlAlchemySlaveSession import SqlAlchemySlaveSession
 
 #___________________________________________________________________________________________________ ConcreteModelsMeta
 class ConcreteModelsMeta(AbstractModelsMeta):
@@ -24,67 +22,41 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 #                                                                                       C L A S S
 
     # Stores existing engine and sessions for shared access
-    _engines  = {}
-    _sessions = {}
+    _engines  = dict()
+    _sessions = dict()
 
 #___________________________________________________________________________________________________ __new__
     def __new__(cls, name, bases, attrs):
-        module   = attrs['__module__']
-        package  = module[:module.rfind('.')]
-        res      = __import__(package, globals(), locals(), ['DATABASE'])
-        database = getattr(res, 'DATABASE')
+        from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 
-        attrs['_DATABASE'] = database
+        module      = attrs['__module__']
+        package     = module[:module.rfind('.')]
+        res         = __import__(package, globals(), locals(), ['DATABASE'])
+        masterDbDef = getattr(res, 'MASTER_DATABASE_DEF', None)
+        slaveDbDef  = getattr(res, 'SLAVE_DATABASE_DEF', None)
+        adminDbDef  = getattr(res, 'ADMIN_DATABASE_DEF', None)
+        databaseDef = getattr(res, 'DATABASE', None)
 
-        isMaster  = attrs['IS_MASTER']
-        isPyramid = ENVIRONMENT.CURRENT == ENVIRONMENT.PYRAMID_ENV_ID
-        isDjango  = ENVIRONMENT.CURRENT == ENVIRONMENT.DJANGO_ENV_ID
+        isMaster = attrs['IS_MASTER']
+        if isMaster and masterDbDef:
+            if not ZigguratModelUtils.isWebEnvironment and adminDbDef:
+                databaseDef = adminDbDef
+            else:
+                databaseDef = masterDbDef
+        elif slaveDbDef:
+            databaseDef = slaveDbDef
+
+        if not databaseDef:
+            raise Exception, 'ERROR: No database definition specified!'
+
+        attrs['_DATABASE'] = databaseDef
+
         key       = ConcreteModelsMeta._getDatabaseKey(attrs['__module__'], isMaster)
         binding   = ConcreteModelsMeta._engines.get(key)
         if binding is None:
-            userGroup = (
-                database['users'][0] if isinstance(database['users'], list) else database['users']
-            )
+            engine = databaseDef.createEngine()
 
-            if isMaster and not isPyramid and not isDjango:
-                account = userGroup['admin'][0]
-            elif isMaster:
-                account = userGroup['master'][0]
-            else:
-                account = userGroup['slave'][0]
-
-            connect_args = {
-                'unix_socket':str(Databases.SQL_SOCKET_PATH),
-                'charset':'utf8'
-            }
-
-            if Databases.USE_SSL:
-                connect_args['ssl'] = {
-                    'cert':CONFIG.MAIN_PRIVATE_CERT_PATH + CONFIG.CLIENT_CERT_NAME,
-                    'key' :CONFIG.MAIN_PRIVATE_CERT_PATH + CONFIG.CLIENT_KEY_NAME,
-                    'ca'  :CONFIG.MAIN_PRIVATE_CERT_PATH + CONFIG.CA_CERT_NAME
-                }
-
-            url = 'mysql+oursql://%s:%s@%s:%s/%s' % (
-                account['user'],
-                account['password'],
-                database['master'] if isMaster else database['slave'],
-                str(Databases.SQL_ACCESS_PORT), database['name']
-            )
-
-            engine = create_engine(
-                url,
-                echo=False,
-                poolclass=QueuePool,
-                echo_pool=True,
-                pool_size=10,
-                max_overflow=20,
-                pool_timeout=30,
-                pool_recycle=IntUtils.jitter(1800),
-                connect_args=connect_args
-            )
-
-            if isPyramid:
+            if ZigguratModelUtils.isWebEnvironment:
                 from zope.sqlalchemy import ZopeTransactionExtension
                 sessionClass = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
             else:
@@ -95,7 +67,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
             base.metadata.bind = engine
             base.metadata.create_all(engine)
 
-            binding = (engine, sessionClass, base, url)
+            binding = (engine, sessionClass, base, databaseDef.url)
 
             ConcreteModelsMeta._engines[key] = binding
 
@@ -108,10 +80,10 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         session = ConcreteModelsMeta._sessions.get(key)
         if session is None:
             if isMaster:
-                session = SQLAlchemyMasterSession(attrs['_SESSION_CLASS'])
+                session = SqlAlchemyMasterSession(attrs['_SESSION_CLASS'])
             else:
-                from vmi.models.shared.session.SQLAlchemySlaveSession import SQLAlchemySlaveSession
-                session = SQLAlchemySlaveSession(attrs['_SESSION_CLASS'])
+                from ziggurat.sqlalchemy.session.SqlAlchemySlaveSession import SqlAlchemySlaveSession
+                session = SqlAlchemySlaveSession(attrs['_SESSION_CLASS'])
 
             ConcreteModelsMeta._sessions[key] = session
 
@@ -119,8 +91,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 
         if not isMaster:
             attrs['masterInstance'] = property(
-                ExternalKeyProperty('i', attrs['_MODEL_NAME'], externalIsMaster=True)
-            )
+                ExternalKeyProperty('i', attrs['_MODEL_NAME'], externalIsMaster=True) )
 
         # Add the declarative base to inheritance
         declaredBase = (attrs['_BASE'],)
@@ -154,11 +125,10 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 
 #___________________________________________________________________________________________________ getDebugInfo
     def getDebugInfo(cls):
-        s  = 'DEBUG: ' + cls.__name__
-        s += '\n\tSUPER CLASSES:'
+        s    = 'DEBUG: %s\n\tSUPER CLASSES:' % cls.__name__
         base = None
         for b in cls.__bases__:
-            s += '\n\t\t' + str(b.__name__) + '(' + str(b.__module__) + ')'
+            s += '\n\t\t%s(%s)' % (str(b.__name__), str(b.__module__))
             if b.__module__ == 'sqlalchemy.ext.declarative':
                 base = b
 
@@ -194,18 +164,18 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         try:
             return cls._session.createQuery(*args if args else [cls])
         except Exception, err:
-            AbstractModelsMeta._logger.writeError(
-                'Query Creation Failure: ' + unicode(cls.__name__)
-                + '\nMETA: ' + unicode(cls.__base__.metadata)
-                + '\nREGISTRY: ' + unicode(cls.__base__._decl_class_registry)
-                + '\nENGINES: ' + unicode(ConcreteModelsMeta._engines)
-                + '\nSESSIONS: ' + unicode(ConcreteModelsMeta._sessions)
-                + '\nABSTRACT REGISTRY: ' + unicode(AbstractModelsMeta._registry), err)
+            AbstractModelsMeta.logger.writeError([
+                'Query Creation Failure: ' + unicode(cls.__name__),
+                'META: ' + unicode(cls.__base__.metadata),
+                'REGISTRY: ' + unicode(cls.__base__._decl_class_registry),
+                'ENGINES: ' + unicode(ConcreteModelsMeta._engines),
+                'SESSIONS: ' + unicode(ConcreteModelsMeta._sessions),
+                'ABSTRACT REGISTRY: ' + unicode(AbstractModelsMeta._registry) ], err)
             raise err
 
 #___________________________________________________________________________________________________ createResult
     def createResult(cls, query, lock =False):
-        return SQLAlchemyResult(cls, query, lock)
+        return SqlAlchemyResult(cls, query, lock)
 
 #___________________________________________________________________________________________________ cleanupSessions
     @staticmethod
@@ -217,17 +187,16 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 #                                                                               P R O T E C T E D
 
 #___________________________________________________________________________________________________ _createRelationship
-    def _createRelationship(cls, backRefName, foreignModelName, foreignJoinColumnName,
-            localJoinColumnName ='i'):
+    def _createRelationship(
+            cls, backRefName, foreignModelName, foreignJoinColumnName, localJoinColumnName ='i'
+    ):
 
         backModelName = foreignModelName + ('_Master' if cls.IS_MASTER else '_Slave')
         return relationship(
             backModelName,
             backref=backRefName,
             primaryjoin=('%s.%s == %s.%s' % (
-                cls.__name__, localJoinColumnName, backModelName, foreignJoinColumnName)
-            )
-        )
+                cls.__name__, localJoinColumnName, backModelName, foreignJoinColumnName) ))
 
 #___________________________________________________________________________________________________ _getDatabaseKey
     @staticmethod
@@ -249,7 +218,7 @@ def ping_connection(dbapi_connection, connection_record, connection_proxy):
     except Exception, err:
         # raise DisconnectionError - pool will try
         # connecting again up to three times before raising.
-        AbstractModelsMeta._logger.writeError('Cursor FAILED', err)
+        AbstractModelsMeta.logger.writeError('Cursor FAILED', err)
         print 'CURSOR FAILURE'
         raise exc.DisconnectionError()
     cursor.close()

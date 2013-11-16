@@ -19,7 +19,7 @@ class AbstractModelsMeta(DeclarativeMeta):
 #                                                                                       C L A S S
 
     _registry = dict()
-    _logger   = ServerLogger('SqlAlchemyModels')
+    logger    = ServerLogger('SqlAlchemyModels')
 
 #___________________________________________________________________________________________________ __new__
     def __new__(cls, name, bases, attrs):
@@ -33,16 +33,14 @@ class AbstractModelsMeta(DeclarativeMeta):
                 setter = ModelPropertySetter(n)
 
                 attrs[attrName] = hybrid_property(
-                    ModelPropertyGetter(n), setter, None, ModelPropertyExpression(n)
-                )
+                    ModelPropertyGetter(n), setter, None, ModelPropertyExpression(n) )
 
                 # Add external-key property
                 info = getattr(v, 'info')
                 if info and 'model' in info:
                     columnName = info['column'] if 'column' in info else 'i'
                     attrs[info['get']] = property(
-                        ExternalKeyProperty(attrName, info['model'], columnName)
-                    )
+                        ExternalKeyProperty(attrName, info['model'], columnName) )
 
         return DeclarativeMeta.__new__(cls, name, bases, attrs)
 
@@ -58,11 +56,6 @@ class AbstractModelsMeta(DeclarativeMeta):
     @property
     def SLAVE(cls):
         return cls.getModel('SLAVE')
-
-#___________________________________________________________________________________________________ GS: logger
-    @property
-    def logger(cls):
-        return AbstractModelsMeta._logger
 
 #===================================================================================================
 #                                                                                     P U B L I C

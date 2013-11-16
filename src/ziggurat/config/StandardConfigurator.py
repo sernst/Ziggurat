@@ -26,8 +26,7 @@ class StandardConfigurator(Configurator):
         'pyramid.debug_routematch':False,
         'pyramid.debug_templates':True,
         'pyramid.default_locale_name':'en',
-        'pyramid.includes':'pyramid_tm'
-    }
+        'pyramid.includes':'pyramid_tm' }
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, app, rootViewPackage =None, **kwargs):
@@ -55,7 +54,7 @@ class StandardConfigurator(Configurator):
 #___________________________________________________________________________________________________ GS: makoModuleDirectory
     @property
     def makoModuleDirectory(self):
-        return FileUtils.createPath(self._app.self.rootPath, 'operations', 'mako', isDir=True)
+        return FileUtils.createPath(self._app.rootPath, 'operations', 'mako', isDir=True)
 
 #===================================================================================================
 #                                                                                     P U B L I C

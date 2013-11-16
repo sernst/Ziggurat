@@ -4,6 +4,7 @@
 
 import re
 
+from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
 from pyaid.threading.ThreadUtils import ThreadUtils
 
@@ -22,11 +23,9 @@ class ServerLogger(Logger):
     def __init__(self, name =None, **kwargs):
         """Initializes settings."""
         super(ServerLogger, self).__init__(name, **kwargs)
-        self._app = kwargs.get('app', None)
+        self._app = ArgsUtils.get('app', None, kwargs)
         if self._app is None:
-            self._app = self._getApp()
-            if self._app is None:
-                return
+            return
 
         if self._logPath is None:
             self._logPath = self._app.logPath
@@ -56,14 +55,4 @@ class ServerLogger(Logger):
 
         threadID = ThreadUtils.getCurrentID()
         return unicode(
-            self._getTime().strftime('[%a %H:%M <%S.%f>') + u'<' + threadID + u'>' + info + loc
-        )
-
-#===================================================================================================
-#                                                                               P R O T E C T E D
-
-#___________________________________________________________________________________________________ _getApp
-    @classmethod
-    def _getApp(cls):
-        from ziggurat.ZigguratApplication import ZigguratApplication
-        return ZigguratApplication.getMyApp()
+            self._getTime().strftime('[%a %H:%M <%S.%f>') + u'<' + threadID + u'>' + info + loc)

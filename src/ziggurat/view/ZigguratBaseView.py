@@ -31,7 +31,7 @@ class ZigguratBaseView(object):
         self._outgoingTimecode   = TimeUtils.getNowTimecode(request.ziggurat.timecodeOffset)
         self._checkGlobalAlerts  = False
         self._renderFlags        = None
-        self._logger             = ArgsUtils.get('logger', self._request.ziggurat.logger)
+        self._logger             = ArgsUtils.get('logger', self._request.ziggurat.logger, kwargs)
 
         # Event called when the response object is ready.
         self._request.add_response_callback(self._handleResponseReady)

@@ -9,6 +9,7 @@ from pyaid.file.FileUtils import FileUtils
 from pyaid.threading.ThreadUtils import ThreadUtils
 
 from ziggurat.config.StandardConfigurator import StandardConfigurator
+from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 from ziggurat.utils.debug.ServerLogger import ServerLogger
 
 #___________________________________________________________________________________________________ ZigguratApplication
@@ -23,11 +24,13 @@ class ZigguratApplication(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self):
         """Creates a new instance of ZigguratApplication."""
-        self._environ        = None
-        self._startResponse  = None
-        self._logger         = None
-        self._configs        = None
-        self._pyramidApp     = None
+        ZigguratModelUtils.isWebEnvironment = True
+
+        self._environ           = None
+        self._startResponse     = None
+        self._logger            = None
+        self._configs           = None
+        self._pyramidApp        = None
 
         rootPath = FileUtils.cleanupPath(self.rootPath)
         if not os.path.exists(rootPath):
@@ -89,7 +92,7 @@ class ZigguratApplication(object):
     @property
     def logger(self):
         if self._logger is None:
-            self._logger = ServerLogger(self)
+            self._logger = ServerLogger(self, app=self)
         return self._logger
 
 #===================================================================================================
@@ -126,7 +129,7 @@ class ZigguratApplication(object):
     def __call__(self, *args, **kwargs):
         return self.createApp(
             ArgsUtils.getAsDict('environ', kwargs, args, 0),
-            ArgsUtils.get('start_response', None, kwargs, args, 1))
+            ArgsUtils.get('start_response', None, kwargs, args, 1) )
 
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):
