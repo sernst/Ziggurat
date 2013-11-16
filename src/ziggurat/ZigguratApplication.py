@@ -22,21 +22,27 @@ class ZigguratApplication(object):
     _TIMECODE_OFFSET = 1293868800
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self):
+    def __init__(self, appFilePath, appName =None, rootPath =None, configuratorClass =None):
         """Creates a new instance of ZigguratApplication."""
         ZigguratModelUtils.isWebEnvironment = True
 
+        self._name              = appName
         self._environ           = None
         self._startResponse     = None
         self._logger            = None
         self._configs           = None
         self._pyramidApp        = None
+        self._appFilePath       = appFilePath
+        self._configuratorClass = configuratorClass
 
-        rootPath = FileUtils.cleanupPath(self.rootPath)
-        if not os.path.exists(rootPath):
-            os.makedirs(rootPath)
+        if rootPath is None:
+            rootPath = self.rootPath
+        self._rootPath = rootPath
+
+        if not os.path.exists(self._rootPath):
+            os.makedirs(self._rootPath)
             self.logger.write(
-                u'WARNING: Created missing application path: ' + unicode(rootPath))
+                u'WARNING: Created missing application path: ' + unicode(self._rootPath))
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -49,11 +55,17 @@ class ZigguratApplication(object):
 #___________________________________________________________________________________________________ GS: appName
     @property
     def appName(self):
-        return self.__class__.__name__
+        return self.__class__.__name__ if self._name is None else self._name
 
 #___________________________________________________________________________________________________ GS: rootPath
     @property
     def rootPath(self):
+        if self._rootPath:
+            return self._rootPath
+
+        if self._appFilePath:
+            return FileUtils.getDirectoryOf(self._appFilePath)
+
         return FileUtils.createPath(os.path.expanduser('~'), self.appName, isDir=True)
 
 #___________________________________________________________________________________________________ GS: environ
@@ -81,11 +93,18 @@ class ZigguratApplication(object):
     def logPath(self):
         return FileUtils.createPath(self.rootPath, 'operations', 'logs', isDir=True)
 
+#___________________________________________________________________________________________________ GS: configuratorClass
+    @property
+    def configuratorClass(self):
+        if self._configuratorClass is None:
+            return StandardConfigurator
+        return self._configuratorClass
+
 #___________________________________________________________________________________________________ GS: configurator
     @property
     def configurator(self):
         if self._configs is None:
-            self._configs = StandardConfigurator(self, settings=self._getConfigSettings())
+            self._configs = self.configuratorClass(self, settings=self._getConfigSettings())
         return self._configs
 
 #___________________________________________________________________________________________________ GS: logger
@@ -96,10 +115,10 @@ class ZigguratApplication(object):
         return self._logger
 
 #===================================================================================================
-#                                                                                     P U B L I C
+#                                                                               P R O T E C T E D
 
-#___________________________________________________________________________________________________ createApp
-    def createApp(self, environ, start_response):
+#___________________________________________________________________________________________________ _createApp
+    def _createApp(self, environ, start_response):
         """Doc..."""
         self._environ       = environ
         self._startResponse = start_response
@@ -110,16 +129,17 @@ class ZigguratApplication(object):
         self._pyramidApp = configs.make_wsgi_app()
         return self._pyramidApp
 
-#===================================================================================================
-#                                                                               P R O T E C T E D
-
 #___________________________________________________________________________________________________ _getConfigSettings
     def _getConfigSettings(self):
+        """ Override to pass values to the settings object of the Configurator. """
         return None
 
 #___________________________________________________________________________________________________ _initialize
     def _initialize(self):
-        """Doc..."""
+        """ Called after the application has been created with its environment and start response
+            values but before the Configurator is created and the app processed. Override this
+            method to make adjustments to the application based in request settings that will
+            affect the creation of the Configurator. """
         pass
 
 #===================================================================================================
@@ -127,7 +147,7 @@ class ZigguratApplication(object):
 
 #___________________________________________________________________________________________________ __call__
     def __call__(self, *args, **kwargs):
-        return self.createApp(
+        return self._createApp(
             ArgsUtils.getAsDict('environ', kwargs, args, 0),
             ArgsUtils.get('start_response', None, kwargs, args, 1) )
 

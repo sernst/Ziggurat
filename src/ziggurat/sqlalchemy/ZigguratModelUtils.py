@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst
 
+import os
+
 from pyaid.decorators.ClassGetter import ClassGetter
 
 from ziggurat.utils.debug.ServerLogger import ServerLogger
@@ -28,7 +30,6 @@ class ZigguratModelUtils(object):
 #___________________________________________________________________________________________________ modelsInit
     @classmethod
     def initializeModels(cls, initPath, initName):
-        import os
         for module in os.listdir(initPath[0]):
             if module == '__init__.py' or module[-3:] != '.py' or module.find('_') == -1:
                 continue

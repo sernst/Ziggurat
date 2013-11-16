@@ -65,7 +65,7 @@ class StandardConfigurator(Configurator):
             return
 
         self._isPopulated = True
-        self._createRoutes()
+        self._populateRoutes()
 
         existingSettings = self.get_settings()
         settings = dict()
@@ -84,24 +84,24 @@ class StandardConfigurator(Configurator):
         self._populateSettings(existingSettings, settings)
         self.add_settings(settings)
 
-#___________________________________________________________________________________________________ _addRouteItem
-    def addRouteItem(self, name, uriPattern, className, renderer =None, package =None):
+#___________________________________________________________________________________________________ addRouteItem
+    def addRouteItem(self, name, pattern, className, renderer =None, package =None):
         """Adds a route to the registry."""
 
         # Adds optional end slash argument to URLs that don't enforce an end slash themselves
-        if not uriPattern.endswith('/'):
-            if self._REST_PATTERN.search(uriPattern) is None:
-                uriPattern += '{endSlash:[/]*}'
+        if not pattern.endswith('/'):
+            if self._REST_PATTERN.search(pattern) is None:
+                pattern += '{endSlash:[/]*}'
 
         if package:
             package += '.' + className + '.' + className
         else:
             package = self._app.rootViewPackage + '.' + className + '.' + className
 
-        self.add_route(name, uriPattern)
+        self.add_route(name, pattern)
         self.add_view(package, route_name=name, renderer=renderer)
 
-#___________________________________________________________________________________________________ _addStaticRouteItem
+#___________________________________________________________________________________________________ addStaticRouteItem
     def addStaticRouteItem(self, name, path):
         self.add_static_view(name=name, path=path)
 
@@ -119,7 +119,7 @@ class StandardConfigurator(Configurator):
 #___________________________________________________________________________________________________ _populateRoutes
     def _populateRoutes(self):
         """Doc..."""
-        return []
+        pass
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
