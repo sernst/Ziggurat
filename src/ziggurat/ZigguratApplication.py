@@ -39,8 +39,8 @@ class ZigguratApplication(object):
         if self._rootPath is None:
             self._rootPath = self.rootPath
 
-        if not os.path.exists(self._rootPath):
-            os.makedirs(self._rootPath)
+        if not os.path.exists(self.logPath):
+            os.makedirs(self.logPath)
             self.logger.write(
                 u'WARNING: Created missing application path: ' + unicode(self._rootPath))
 
@@ -104,7 +104,7 @@ class ZigguratApplication(object):
     @property
     def configurator(self):
         if self._configs is None:
-            self._configs = self.configuratorClass(self, settings=self._getConfigSettings())
+            self._configs = self.configuratorClass(app=self, settings=self._getConfigSettings())
         return self._configs
 
 #___________________________________________________________________________________________________ GS: logger
@@ -122,12 +122,38 @@ class ZigguratApplication(object):
         """Doc..."""
         self._environ       = environ
         self._startResponse = start_response
-        self._initialize()
 
-        configs = self.configurator
-        configs.populateConfigs()
-        self._pyramidApp = configs.make_wsgi_app()
-        return self._pyramidApp
+        try:
+            self._initialize()
+        except Exception, err:
+            self.logger.writeError([
+                u'ERROR: Ziggurat App Initialization Failed',
+                u'ENVIRON: ' + unicode(environ),
+                u'RESPONSE: ' + unicode(start_response) ], err)
+            raise
+
+        try:
+            configs = self.configurator
+            configs.populateConfigs()
+        except Exception, err:
+            self.logger.writeError(u'ERROR: Configurator Initialization Failed', err)
+            raise
+
+        try:
+            self._pyramidApp = configs.make_wsgi_app()
+        except Exception, err:
+            self.logger.writeError(u'ERROR: Pyramid Application Creation Failed', err)
+            raise
+
+        try:
+            return configs.make_wsgi_app()(environ, start_response)
+        except Exception, err:
+            self.logger.write([
+                u'ERROR: WSGI Application Creation Failed',
+                u'CONFIGURATOR: ' + unicode(configs),
+                u'START_RESPONSE: ' + unicode(start_response),
+                u'ENVIRON: ' + unicode(environ) ], err)
+        return None
 
 #___________________________________________________________________________________________________ _getConfigSettings
     def _getConfigSettings(self):
@@ -147,9 +173,16 @@ class ZigguratApplication(object):
 
 #___________________________________________________________________________________________________ __call__
     def __call__(self, *args, **kwargs):
-        return self._createApp(
-            ArgsUtils.getAsDict('environ', kwargs, args, 0),
-            ArgsUtils.get('start_response', None, kwargs, args, 1) )
+        try:
+            return self._createApp(
+                ArgsUtils.getAsDict('environ', kwargs, args, 0),
+                ArgsUtils.get('start_response', None, kwargs, args, 1) )
+        except Exception, err:
+            self.logger.writeError([
+                u'ERROR: Application Creation Failed',
+                u'ARGS: ' + unicode(args),
+                u'KWARGS: ' + unicode(kwargs) ], err)
+            raise
 
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):

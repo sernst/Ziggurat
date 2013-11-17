@@ -93,10 +93,9 @@ class StandardConfigurator(Configurator):
             if self._REST_PATTERN.search(pattern) is None:
                 pattern += '{endSlash:[/]*}'
 
-        if package:
-            package += '.' + className + '.' + className
-        else:
-            package = self._app.rootViewPackage + '.' + className + '.' + className
+        if not package:
+            package = self._rootViewPackage
+        package += '.' + className + '.' + className
 
         self.add_route(name, pattern)
         self.add_view(package, route_name=name, renderer=renderer)

@@ -22,13 +22,16 @@ class ServerLogger(Logger):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, name =None, **kwargs):
         """Initializes settings."""
-        super(ServerLogger, self).__init__(name, **kwargs)
-        self._app = ArgsUtils.get('app', None, kwargs)
+        self._app = ArgsUtils.extract('app', None, kwargs)
         if self._app is None:
+            super(ServerLogger, self).__init__(name, printOut=True, **kwargs)
             return
 
-        if self._logPath is None:
-            self._logPath = self._app.logPath
+        super(ServerLogger, self).__init__(
+            name=name,
+            printOut=True,
+            logFolder=self._app.logPath,
+            **kwargs)
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -41,9 +44,9 @@ class ServerLogger(Logger):
         else:
             loc = u']'
 
-        if self._app:
+        if self._app and self._app.pyramidApp:
             wsgi     = self._app.environ
-            initials = ServerLogger._INITIALS_RX.sub('', wsgi.get('REMOTE_USER', ''))
+            initials = self._INITIALS_RX.sub('', wsgi.get('REMOTE_USER', ''))
             if initials:
                 initials += u' | '
 

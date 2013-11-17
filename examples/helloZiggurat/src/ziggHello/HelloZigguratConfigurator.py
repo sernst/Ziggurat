@@ -12,8 +12,11 @@ class HelloZigguratConfigurator(StandardConfigurator):
 #                                                                                       C L A S S
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, app):
-        super(HelloZigguratConfigurator, self).__init__(app, rootViewPackage='ziggHello.views')
+    def __init__(self, app, **kwargs):
+        super(HelloZigguratConfigurator, self).__init__(
+            app=app,
+            rootViewPackage='ziggHello.views',
+            **kwargs)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
