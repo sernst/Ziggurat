@@ -8,6 +8,7 @@ from pyaid.ArgsUtils import ArgsUtils
 from pyaid.time.TimeUtils import TimeUtils
 
 from ziggurat.view.response.ViewResponse import ViewResponse
+from ziggurat.sqlalchemy.meta.ConcreteModelsMeta import ConcreteModelsMeta
 
 #___________________________________________________________________________________________________ ZigguratBaseView
 class ZigguratBaseView(object):
@@ -171,8 +172,7 @@ class ZigguratBaseView(object):
             response.last_modified = self._lastModified
 
         # Clean up per-thread sessions.
-        #ConcreteModelsMeta.cleanupSessions()
-        #MemcachedSession.getInstance().cleanup()
+        ConcreteModelsMeta.cleanupSessions()
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
