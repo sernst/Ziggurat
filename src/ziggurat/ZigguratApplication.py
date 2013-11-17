@@ -34,10 +34,10 @@ class ZigguratApplication(object):
         self._pyramidApp        = None
         self._appFilePath       = appFilePath
         self._configuratorClass = configuratorClass
+        self._rootPath          = rootPath
 
-        if rootPath is None:
-            rootPath = self.rootPath
-        self._rootPath = rootPath
+        if self._rootPath is None:
+            self._rootPath = self.rootPath
 
         if not os.path.exists(self._rootPath):
             os.makedirs(self._rootPath)

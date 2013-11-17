@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gunicorn -b localhost:8000 application.py
+gunicorn -b localhost:8000 application:application

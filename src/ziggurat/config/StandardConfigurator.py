@@ -69,7 +69,7 @@ class StandardConfigurator(Configurator):
 
         existingSettings = self.get_settings()
         settings = dict()
-        for key,value in self._DEFAULT_SETTINGS:
+        for key,value in self._DEFAULT_SETTINGS.iteritems():
             if key not in existingSettings:
                 settings[key] = value
 
