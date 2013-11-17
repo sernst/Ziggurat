@@ -85,7 +85,7 @@ class StandardConfigurator(Configurator):
         self.add_settings(settings)
 
 #___________________________________________________________________________________________________ addRouteItem
-    def addRouteItem(self, name, pattern, className, renderer =None, package =None, subpackage =None):
+    def addRouteItem(self, name, pattern, className, renderer =None, package =None):
         """Adds a route to the registry."""
 
         # Adds optional end slash argument to URLs that don't enforce an end slash themselves
@@ -99,7 +99,7 @@ class StandardConfigurator(Configurator):
         importDef.insert(0, package if package else self._app.rootViewPackage)
 
         self.add_route(name, pattern)
-        self.add_view(importDef, route_name=name, renderer=renderer)
+        self.add_view(package, route_name=name, renderer=renderer)
 
 #___________________________________________________________________________________________________ addStaticRouteItem
     def addStaticRouteItem(self, name, path):

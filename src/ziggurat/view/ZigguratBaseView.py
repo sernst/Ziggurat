@@ -20,18 +20,18 @@ class ZigguratBaseView(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, request, **kwargs):
         """Creates a new instance of ZigguratBaseView."""
-        self._response           = None
         self._request            = request
+        self._response           = None
+        self._outgoingTimecode   = TimeUtils.getNowTimecode(request.ziggurat.timecodeOffset)
+        self._logger             = ArgsUtils.get('logger', self._request.ziggurat.logger, kwargs)
         self._expires            = ArgsUtils.get('expires', 0, kwargs)
         self._lastModified       = None
         self._cacheControlPublic = False
         self._etag               = None
         self._explicitResponse   = None
         self._report             = None
-        self._outgoingTimecode   = TimeUtils.getNowTimecode(request.ziggurat.timecodeOffset)
         self._checkGlobalAlerts  = False
         self._renderFlags        = None
-        self._logger             = ArgsUtils.get('logger', self._request.ziggurat.logger, kwargs)
 
         # Event called when the response object is ready.
         self._request.add_response_callback(self._handleResponseReady)
