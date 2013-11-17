@@ -18,7 +18,7 @@ class ZigguratDatabaseDefinition(object):
 #___________________________________________________________________________________________________ __init__
     def __init__(self, copyFrom =None, **kwargs):
         """Creates a new instance of ZigguratDatabaseDefinition."""
-        self._host       = self._fetchValue('host', None, kwargs, copyFrom)
+        self._host       = self._fetchValue('host', u'localhost', kwargs, copyFrom)
         self._name       = self._fetchValue('name', None, kwargs, copyFrom)
         self._user       = self._fetchValue('user', None, kwargs, copyFrom)
         self._password   = self._fetchValue('password', None, kwargs, copyFrom)
@@ -131,12 +131,13 @@ class ZigguratDatabaseDefinition(object):
 
 #___________________________________________________________________________________________________ createEngine
     def createEngine(self):
-        connect_args = {
-            'unix_socket':str(self._socketPath),
-            'charset':'utf8' }
+        connectArgs = {'charset':'utf8'}
+
+        if self.socketPath:
+            connectArgs['unix_socket'] = str(self.socketPath)
 
         if self.useSSL:
-            connect_args['ssl'] = self.sslConnectArgs
+            connectArgs['ssl'] = self.sslConnectArgs
 
         return create_engine(
             self.url,
@@ -147,7 +148,7 @@ class ZigguratDatabaseDefinition(object):
             max_overflow=20,
             pool_timeout=30,
             pool_recycle=IntUtils.jitter(1800),
-            connect_args=connect_args )
+            connect_args=connectArgs )
 
 #===================================================================================================
 #                                                                               P R O T E C T E D

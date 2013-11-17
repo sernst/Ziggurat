@@ -20,18 +20,15 @@ class ApiRouterView(ZigguratDataView):
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, request, rootPackage =None, **kwargs):
-        """ Creates a new DataViewRouter instance.
+        """ Creates a new ApiRouterView instance.
             @param rootPackage - The root package in which the router will import views. By default
                 the module will look in same package as the router class. Packages can be absolute,
-                vmi.pyramid...., or relative to the current package.
-        """
+                or relative to the current package. """
+
         super(ApiRouterView, self).__init__(request, **kwargs)
 
         # Determine root package
-        if not rootPackage:
-            self._root = ClassUtils.getModulePackage(self.__class__, 1)
-        else:
-            self._root = rootPackage
+        self._root = rootPackage if rootPackage else ClassUtils.getModulePackage(self.__class__, 1)
 
         # Use root package and category to specify import
         self._signature         = self.getArg('sg', '')
@@ -44,7 +41,7 @@ class ApiRouterView(ZigguratDataView):
 #___________________________________________________________________________________________________ GS: apiID
     @property
     def apiID(self):
-        return self.category + '-' + self.action
+        return self.category + u'-' + self.action
 
 #___________________________________________________________________________________________________ GS: requestCategory
     @property
@@ -87,6 +84,11 @@ class ApiRouterView(ZigguratDataView):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ addToResponse
+    def addToResponse(self, **kwargs):
+        for n,v in kwargs.iteritems():
+            self._response[n] = v
+
 #___________________________________________________________________________________________________ getApiArg
     def getApiArg(self, name, default =None, argType =None):
         """ Returns the value of the specified argument if it exists, or the default value if it
@@ -96,18 +98,15 @@ class ApiRouterView(ZigguratDataView):
                 Argument name to retrieve.
             @@@param default:mixed
                 default value returned if the argument does not exist.
-            @@@return mixed
-        """
+            @@@return mixed """
+
         if argType is not None:
             return ArgsUtils.getAs(name, default, self._args, argType)
         return ArgsUtils.get(name, default, self._args)
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
-        return '[%s: %s.%s]' % (
-            str(self.__class__.__name__),
-            str(self.category),
-            str(self.action))
+        return '[%s: %s.%s]' % (str(self.__class__.__name__), str(self.category), str(self.action))
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
@@ -121,21 +120,21 @@ class ApiRouterView(ZigguratDataView):
 
         try:
             # Import the Controller class
-            res             = __import__(package, globals(), locals(), [controllerClass])
-            ControllerClass = getattr(res, controllerClass)
+            res        = __import__(package, globals(), locals(), [controllerClass])
+            controller = getattr(res, controllerClass)(self)
 
-            controller = ControllerClass(self)
+            # If authorized execute the action method, otherwise create a invalid request response
             if controller.authorizeApiAction():
-                result = getattr(controller, self.action)()
+                result = getattr(controller, self.action)(self)
             else:
                 result = ViewResponse(
-                    'ERROR:' + self.apiID,
-                    'Unauthorized Request',
-                    'This unauthorized request was rejected'
-                )
+                    u'ERROR:' + self.apiID,
+                    u'Unauthorized Request',
+                    u'This unauthorized request was rejected')
 
             if isinstance(result, ViewResponse):
                 self._explicitResponse = result
+
             # If an explicit response is set render that instead:
             if self._explicitResponse:
                 self._createExplicitResponse()
@@ -147,13 +146,12 @@ class ApiRouterView(ZigguratDataView):
                 u'Package: ' + unicode(package),
                 u'Controller: ' + unicode(controllerClass),
                 u'Category: ' + unicode(self.category),
-                u'Action: ' + unicode(self.action)
-            ], err)
+                u'Action: ' + unicode(self.action) ], err)
+
             self._explicitResponse = ViewResponse(
-                'ERROR:' + self.apiID,
-                'Invalid Request',
-                'This unknown or invalid request was aborted'
-            )
+                u'ERROR:' + self.apiID,
+                u'Invalid Request',
+                u'This unknown or invalid request was aborted')
             self._createExplicitResponse()
             return
 

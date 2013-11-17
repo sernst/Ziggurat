@@ -25,3 +25,13 @@ class HelloZigguratConfigurator(StandardConfigurator):
             pattern='/',
             className='HelloZigguratHomeView')
 
+        self.addRouteItem(
+            name='data',
+            pattern='/data',
+            className='HelloZigguratDataView')
+
+        self.addRouteItem(
+            name='api',
+            pattern='/api',
+            className='HelloZigguratApiView',
+            subpackage='api')

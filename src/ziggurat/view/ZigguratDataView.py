@@ -17,7 +17,7 @@ class ZigguratDataView(ZigguratBaseView):
     def __init__(self, request, **kwargs):
         """Creates a new instance of ZigguratDataView."""
         super(ZigguratDataView, self).__init__(request, **kwargs)
-        self._response          = dict()
+        self._response = dict()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D

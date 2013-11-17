@@ -6,6 +6,7 @@ import os
 
 from pyaid.decorators.ClassGetter import ClassGetter
 
+from ziggurat.sqlalchemy.ZigguratDatabaseDefinition import ZigguratDatabaseDefinition
 from ziggurat.utils.debug.ServerLogger import ServerLogger
 
 #___________________________________________________________________________________________________ ZigguratModelUtils
@@ -27,9 +28,15 @@ class ZigguratModelUtils(object):
     def logger(cls):
         return cls._LOGGER
 
+#===================================================================================================
+#                                                                                     P U B L I C
+
 #___________________________________________________________________________________________________ modelsInit
     @classmethod
-    def initializeModels(cls, initPath, initName):
+    def initializeModels(cls, initLocalVars):
+        initPath = initLocalVars['__path__']
+        initName = initLocalVars['__name__']
+
         for module in os.listdir(initPath[0]):
             if module == '__init__.py' or module[-3:] != '.py' or module.find('_') == -1:
                 continue
@@ -43,6 +50,11 @@ class ZigguratModelUtils(object):
                 c.SLAVE
             except Exception, err:
                 cls.logger.writeError('Model Initialization Failure: ' + str(c.__name__), err)
+
+#___________________________________________________________________________________________________ createDatabaseDefinition
+    @classmethod
+    def createDatabaseDefinition(cls, **kwargs):
+        return ZigguratDatabaseDefinition(**kwargs)
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
