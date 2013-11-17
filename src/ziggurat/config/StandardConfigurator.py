@@ -85,7 +85,7 @@ class StandardConfigurator(Configurator):
         self.add_settings(settings)
 
 #___________________________________________________________________________________________________ addRouteItem
-    def addRouteItem(self, name, pattern, className, renderer =None, package =None):
+    def addRouteItem(self, name, pattern, className, renderer =None, package =None, subpackage =None):
         """Adds a route to the registry."""
 
         # Adds optional end slash argument to URLs that don't enforce an end slash themselves
