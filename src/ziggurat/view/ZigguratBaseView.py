@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
+import transaction
+
 from pyramid.httpexceptions import HTTPFound, HTTPServerError
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -36,6 +38,7 @@ class ZigguratBaseView(object):
 
         # Event called when the response object is ready.
         self._request.add_response_callback(self._handleResponseReady)
+        self._request.add_finished_callback(self._handleFinishedCallback)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -173,6 +176,14 @@ class ZigguratBaseView(object):
 
         # Clean up per-thread sessions.
         ConcreteModelsMeta.cleanupSessions()
+
+#___________________________________________________________________________________________________ _handleFinishedCallback
+    def _handleFinishedCallback(self, request):
+        '''commit or abort the transaction associated with request'''
+        if request.exception is not None:
+            transaction.abort()
+        else:
+            transaction.commit()
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

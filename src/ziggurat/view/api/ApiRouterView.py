@@ -34,6 +34,7 @@ class ApiRouterView(ZigguratDataView):
         self._signature         = self.getArg('sg', '')
         self._args              = self.getArg('args', None)
         self._incomingTimestamp = None
+        self._outgoingTimestamp = None
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -125,7 +126,7 @@ class ApiRouterView(ZigguratDataView):
 
             # If authorized execute the action method, otherwise create a invalid request response
             if controller.authorizeApiAction():
-                result = getattr(controller, self.action)(self)
+                result = getattr(controller, self.action)()
             else:
                 result = ViewResponse(
                     u'ERROR:' + self.apiID,
@@ -155,6 +156,4 @@ class ApiRouterView(ZigguratDataView):
             self._createExplicitResponse()
             return
 
-        self._response['__tcode__']         = self.outgoingTimecode
-        self._request.response_content_type = 'application/javascript'
-        self._response = render_to_response('json', self._response, self._request)
+        self._response['__tcode__'] = self.outgoingTimecode

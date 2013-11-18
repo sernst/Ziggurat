@@ -55,14 +55,12 @@ class ViewResponse(object):
 #___________________________________________________________________________________________________ toDict
     def toDict(self, view):
         """Converts the object to a dictionary for rendering to a JSON response."""
-        d = dict(
+        return self._toDictImpl(dict(
             id=self.id,
             data=self.data,
             label=self.label,
             message=self.message,
-            timestamp=view.outgoingTimestamp)
-
-        return self._toDictImpl(d, view)
+            timecode=view.outgoingTimecode), view)
 
 #===================================================================================================
 #                                                                               P R O T E C T E D

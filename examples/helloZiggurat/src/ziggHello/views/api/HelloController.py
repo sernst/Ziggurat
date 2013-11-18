@@ -4,31 +4,31 @@
 
 from pyaid.json.JSON import JSON
 
+from ziggurat.view.api.ApiController import ApiController
+
 #___________________________________________________________________________________________________ HelloController
-class HelloController(object):
+class HelloController(ApiController):
     """A class for..."""
 
 #===================================================================================================
 #                                                                                       C L A S S
 
 #___________________________________________________________________________________________________ echoHello
-    @classmethod
-    def echoHello(cls, router):
+    def echoHello(self):
         """ An example of a Controller action method. The router (API view instance) is passed in
             for reference and response modification. """
 
         # Example of modifying the response dictionary directly
-        router.response['apiInfo'] = ['Hello', 'echoHello']
+        self._router.response['apiInfo'] = ['Hello', 'echoHello']
 
         # Example of batch modification of the response dictionary
-        router.addToResponse(
+        self._router.addToResponse(
             hello='Ziggurat',
             answer=42,
             question=['The', 'ultimate', 'answer', 'to', 'life'])
 
 #___________________________________________________________________________________________________ echoModel
-    @classmethod
-    def echoModel(cls, router):
+    def echoModel(self):
         """ An example using a Ziggurat database model. Here a new entry of the ZigguratTest_Test
             model is created and added to the database and its index in differing radices is
             returned in the response.
@@ -38,14 +38,21 @@ class HelloController(object):
                 without the required database support. """
 
         try:
-            from ziggHello.models.ZigguratTest_Test import ZigguratTest_Test
+            from ziggHello.models.zigguratTest.ZigguratTest_Test import ZigguratTest_Test
             model = ZigguratTest_Test.MASTER
-            entry = model(info=JSON.asString(router.ziggurat.environ))
+
+            out = dict()
+            for name, value in self._router.ziggurat.environ.iteritems():
+                if name.upper() == name:
+                    out[name] = unicode(value)
+
+            entry = model()
+            entry.infoData = out
             model.session.add(entry)
             model.session.flush()
         except Exception, err:
-            router.response['error'] = str(err)
-            router.logger.writeError(u'MODEL ERROR', err)
+            self._router.response['error'] = str(err)
+            self._router.logger.writeError(u'MODEL ERROR', err)
             return
 
-        router.reponse['index'] = [entry.i, entry.i16, entry.i36, entry.i64]
+        self._router.response['index'] = [entry.i, entry.i16, entry.i36, entry.i64]

@@ -148,17 +148,15 @@ class ZigguratApplication(object):
         try:
             return configs.make_wsgi_app()(environ, start_response)
         except Exception, err:
-            self.logger.write([
+            self.logger.writeError([
                 u'ERROR: WSGI Application Creation Failed',
-                u'CONFIGURATOR: ' + unicode(configs),
-                u'START_RESPONSE: ' + unicode(start_response),
-                u'ENVIRON: ' + unicode(environ) ], err)
-        return None
+                u'CONFIGURATOR: ' + unicode(configs) ], err)
+            raise
 
 #___________________________________________________________________________________________________ _getConfigSettings
     def _getConfigSettings(self):
         """ Override to pass values to the settings object of the Configurator. """
-        return None
+        return dict()
 
 #___________________________________________________________________________________________________ _initialize
     def _initialize(self):

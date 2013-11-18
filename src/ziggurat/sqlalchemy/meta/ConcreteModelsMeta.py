@@ -58,12 +58,12 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 
             if ZigguratModelUtils.isWebEnvironment:
                 from zope.sqlalchemy import ZopeTransactionExtension
-                sessionClass = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+                sessionClass = scoped_session(sessionmaker(
+                    bind=engine, extension=ZopeTransactionExtension()))
             else:
-                sessionClass = scoped_session(sessionmaker())
-            sessionClass.configure(bind=engine)
+                sessionClass = scoped_session(sessionmaker(bind=engine))
 
-            base               = declarative_base()
+            base = declarative_base()
             base.metadata.bind = engine
             base.metadata.create_all(engine)
 
@@ -108,7 +108,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 #___________________________________________________________________________________________________ GS: __databasename__
     @property
     def __databasename__(cls):
-        return cls._DATABASE['name']
+        return cls._DATABASE.name
 
 #___________________________________________________________________________________________________ GS: __modelname__
     @property

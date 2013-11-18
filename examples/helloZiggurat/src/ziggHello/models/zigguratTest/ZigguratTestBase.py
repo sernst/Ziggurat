@@ -1,11 +1,11 @@
-# ZigguratTestModelsBase.py
+# ZigguratTestBase.py
 # (C)2013
 # Scott Ernst
 
 from ziggurat.sqlalchemy.ZigguratModelsBase import ZigguratModelsBase
 
-#___________________________________________________________________________________________________ ZigguratTestModelsBase
-class ZigguratTestModelsBase(ZigguratModelsBase):
+#___________________________________________________________________________________________________ ZigguratTestBase
+class ZigguratTestBase(ZigguratModelsBase):
     """A class for..."""
 
 #===================================================================================================

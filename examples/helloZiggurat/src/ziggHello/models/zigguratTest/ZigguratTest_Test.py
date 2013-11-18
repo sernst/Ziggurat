@@ -7,12 +7,16 @@ from sqlalchemy import UnicodeText
 
 from pyaid.json.JSON import JSON
 
+from ziggHello.models.zigguratTest.ZigguratTestBase import ZigguratTestBase
+
 #___________________________________________________________________________________________________ ZigguratTest_Test
-class ZigguratTest_Test(object):
+class ZigguratTest_Test(ZigguratTestBase):
     """A class for..."""
 
 #===================================================================================================
 #                                                                                       C L A S S
+
+    __tablename__ = 'test'
 
     _info = Column(UnicodeText, default=u'')
 

@@ -156,7 +156,7 @@ class ZigguratDatabaseDefinition(object):
 #___________________________________________________________________________________________________ _fetchValue
     def _fetchValue(self, key, defaultValue =None, kwargData =None, source =None, sourceProp =None):
         if kwargData and key in kwargData:
-            return key.get(kwargData, None)
+            return kwargData.get(key, None)
 
         if source is None:
             return defaultValue

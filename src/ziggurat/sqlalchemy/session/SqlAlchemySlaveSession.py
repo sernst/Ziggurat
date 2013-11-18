@@ -28,6 +28,10 @@ class SqlAlchemySlaveSession(object):
         if tid in self._sessions:
             del self._sessions[tid]
 
+#___________________________________________________________________________________________________ getRawSession
+    def getRawSession(self):
+        return self._getSession()
+
 #===================================================================================================
 #                                                                               P R O T E C T E D
 

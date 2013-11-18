@@ -35,6 +35,6 @@ class HelloZigguratConfigurator(StandardConfigurator):
 
         self.addRouteItem(
             name='api',
-            pattern='/api',
+            pattern='/api/{category}/{action}',
             className='HelloZigguratApiView',
             subpackage='api')

@@ -26,7 +26,8 @@ class StandardConfigurator(Configurator):
         'pyramid.debug_routematch':False,
         'pyramid.debug_templates':True,
         'pyramid.default_locale_name':'en',
-        'pyramid.includes':'pyramid_tm' }
+        'pyramid.includes':'pyramid_tm',
+        'mako.input_encoding':'utf-8' }
 
 #___________________________________________________________________________________________________ __init__
     def __init__(self, app, rootViewPackage =None, **kwargs):
@@ -67,21 +68,17 @@ class StandardConfigurator(Configurator):
         self._isPopulated = True
         self._populateRoutes()
 
-        existingSettings = self.get_settings()
-        settings = dict()
-        for key,value in self._DEFAULT_SETTINGS:
-            if key not in existingSettings:
-                settings[key] = value
+        settings = dict(self._DEFAULT_SETTINGS.items())
 
         p = self.makoRootTemplatePath
         if p:
-            settings['mako.directories']    = p
-            settings['mako.input_encoding'] = 'utf-8'
+            settings['mako.directories'] = p
+
             p = self.makoModuleDirectory
             if p:
                 settings['mako.module_directory'] = p
 
-        self._populateSettings(existingSettings, settings)
+        self._populateSettings(settings)
         self.add_settings(settings)
 
 #___________________________________________________________________________________________________ addRouteItem
@@ -96,10 +93,10 @@ class StandardConfigurator(Configurator):
         importDef = [className, className]
         if subpackage:
             importDef.insert(0, subpackage)
-        importDef.insert(0, package if package else self._app.rootViewPackage)
+        importDef.insert(0, package if package else self.rootViewPackage)
 
         self.add_route(name, pattern)
-        self.add_view(package, route_name=name, renderer=renderer)
+        self.add_view(u'.'.join(importDef), route_name=name, renderer=renderer)
 
 #___________________________________________________________________________________________________ addStaticRouteItem
     def addStaticRouteItem(self, name, path):
@@ -113,7 +110,7 @@ class StandardConfigurator(Configurator):
         return self._app
 
 #___________________________________________________________________________________________________ _populateSettings
-    def _populateSettings(self, existingSettings, newSettings):
+    def _populateSettings(self, settings):
         pass
 
 #___________________________________________________________________________________________________ _populateRoutes

@@ -20,12 +20,12 @@ class SqlAlchemyMasterSession(SqlAlchemySlaveSession):
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ add
-    def add(self, model):
-        self._getSession().add(model)
+    def add(self, entry):
+        self._getSession().add(entry)
 
 #___________________________________________________________________________________________________ remove
-    def remove(self, model):
-        self._getSession().delete(model)
+    def remove(self, entry):
+        self._getSession().delete(entry)
 
 #___________________________________________________________________________________________________ flush
     def flush(self):
