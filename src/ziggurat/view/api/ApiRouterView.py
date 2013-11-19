@@ -32,12 +32,11 @@ class ApiRouterView(ZigguratDataView):
         zargs = self.getArg('zg_args', None)
         if zargs:
             try:
-                self._zargs = JSON.fromString(self._zargs)
+                self._zargs = JSON.fromString(zargs)
             except Exception, err:
                 self._zargs = None
         else:
             self._zargs = None
-
         self._signature = self.getArg('zg_sig', '')
 
         self._incomingTimestamp = None
