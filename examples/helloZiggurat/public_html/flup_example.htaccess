@@ -1,0 +1,6 @@
+Options +SymLinksIfOwnerMatch
+RewriteEngine On
+RewriteBase /
+RewriteRule ^(media/.*)$ - [L]
+RewriteCond %{REQUEST_URI} !(helloZiggurat.fcgi)
+RewriteRule ^(.*)$ helloZiggurat.fcgi/$1 [L]

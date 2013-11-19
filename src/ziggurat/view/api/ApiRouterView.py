@@ -2,10 +2,9 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
-from pyramid.renderers import render_to_response
-
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.ClassUtils import ClassUtils
+from pyaid.json.JSON import JSON
 from pyaid.time.TimeUtils import TimeUtils
 
 from ziggurat.view.ZigguratDataView import ZigguratDataView
@@ -30,9 +29,17 @@ class ApiRouterView(ZigguratDataView):
         # Determine root package
         self._root = rootPackage if rootPackage else ClassUtils.getModulePackage(self.__class__, 1)
 
-        # Use root package and category to specify import
-        self._signature         = self.getArg('sg', '')
-        self._args              = self.getArg('args', None)
+        zargs = self.getArg('zg_args', None)
+        if zargs:
+            try:
+                self._zargs = JSON.fromString(self._zargs)
+            except Exception, err:
+                self._zargs = None
+        else:
+            self._zargs = None
+
+        self._signature = self.getArg('zg_sig', '')
+
         self._incomingTimestamp = None
         self._outgoingTimestamp = None
 
@@ -68,7 +75,7 @@ class ApiRouterView(ZigguratDataView):
     def incomingTimecode(self):
         if not self._incomingTimestamp:
             self._incomingTimestamp = TimeUtils.timecodeToDatetime(
-                self.getApiArg('__tcode__', u''),
+                self.fetchApiZarg('z_tcode', u''),
                 self._request.ziggurat.timecodeOffset)
         return self._incomingTimestamp
 
@@ -77,10 +84,10 @@ class ApiRouterView(ZigguratDataView):
     def signature(self):
         return self._signature
 
-#___________________________________________________________________________________________________ GS: args
+#___________________________________________________________________________________________________ GS: zargs
     @property
-    def args(self):
-        return self._args
+    def zargs(self):
+        return self._zargs
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -90,20 +97,23 @@ class ApiRouterView(ZigguratDataView):
         for n,v in kwargs.iteritems():
             self._response[n] = v
 
-#___________________________________________________________________________________________________ getApiArg
-    def getApiArg(self, name, default =None, argType =None):
+#___________________________________________________________________________________________________ fetchApiZarg
+    def fetchApiZarg(self, name, default =None, zargType =None):
         """ Returns the value of the specified argument if it exists, or the default value if it
             does not.
 
-            @@@param name:string
+            @param name:string
                 Argument name to retrieve.
-            @@@param default:mixed
+            @param default:mixed
                 default value returned if the argument does not exist.
-            @@@return mixed """
+            @return mixed """
 
-        if argType is not None:
-            return ArgsUtils.getAs(name, default, self._args, argType)
-        return ArgsUtils.get(name, default, self._args)
+        if not self._zargs:
+            return None
+
+        if zargType is not None:
+            return ArgsUtils.getAs(name, default, self._zargs, zargType)
+        return ArgsUtils.get(name, default, self._zargs)
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
