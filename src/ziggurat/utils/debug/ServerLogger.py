@@ -46,13 +46,16 @@ class ServerLogger(Logger):
 
         if self._app and self._app.pyramidApp:
             wsgi     = self._app.environ
-            initials = self._INITIALS_RX.sub('', wsgi.get('REMOTE_USER', ''))
+            initials = self._INITIALS_RX.sub('', ArgsUtils.get('REMOTE_USER', '', wsgi))
             if initials:
                 initials += u' | '
 
-            domainName  = wsgi.get('SERVER_NAME', '')
-            uriPath     = wsgi.get('REQUEST_URI', wsgi.get('HTTP_REQUEST_URI', ''))
-            info        = u' <' + initials + domainName + uriPath + u'>'
+            domainName  = ArgsUtils.get('SERVER_NAME', '', wsgi)
+            uriPath = ArgsUtils.get(
+                'REQUEST_URI',
+                ArgsUtils.get('HTTP_REQUEST_URI', '', wsgi), wsgi)
+
+            info = u' <' + initials + domainName + uriPath + u'>'
         else:
             info = u''
 
