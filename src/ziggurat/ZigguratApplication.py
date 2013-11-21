@@ -22,9 +22,11 @@ class ZigguratApplication(object):
     _TIMECODE_OFFSET = 1293868800
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, appFilePath, appName =None, rootPath =None, configuratorClass =None):
+    def __init__(self, appFilePath, appName =None, rootPath =None, configuratorClass =None, **kwargs):
         """Creates a new instance of ZigguratApplication."""
         ZigguratModelUtils.isWebEnvironment = True
+
+        self.strEncodeEnviron = ArgsUtils.get('strEncodeEnviron', False, kwargs)
 
         self._name              = appName
         self._environ           = None
@@ -120,8 +122,15 @@ class ZigguratApplication(object):
 #___________________________________________________________________________________________________ _createApp
     def _createApp(self, environ, start_response):
         """Doc..."""
-        self._environ       = environ
-        self._startResponse = start_response
+
+        # Forces values to be strings instead of Unicode values when specified
+        if self.strEncodeEnviron:
+            for key, value in environ.iteritems():
+                if not isinstance(value, str):
+                    environ[key] = unicode(value).encode()
+
+            self._environ       = environ
+            self._startResponse = start_response
 
         try:
             self._initialize()
