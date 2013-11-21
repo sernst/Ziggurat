@@ -22,7 +22,10 @@ class ZigguratApplication(object):
     _TIMECODE_OFFSET = 1293868800
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, appFilePath, appName =None, rootPath =None, configuratorClass =None, **kwargs):
+    def __init__(
+                self, appFilePath =None, appName =None, rootPath =None, configuratorClass =None,
+                **kwargs
+    ):
         """Creates a new instance of ZigguratApplication."""
         ZigguratModelUtils.isWebEnvironment = True
 
