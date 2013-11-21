@@ -123,14 +123,8 @@ class ZigguratApplication(object):
     def _createApp(self, environ, start_response):
         """Doc..."""
 
-        # Forces values to be strings instead of Unicode values when specified
-        if self.strEncodeEnviron:
-            for key, value in environ.iteritems():
-                if not isinstance(value, str):
-                    environ[key] = unicode(value).encode()
-
-            self._environ       = environ
-            self._startResponse = start_response
+        self._environ       = environ
+        self._startResponse = start_response
 
         try:
             self._initialize()
@@ -153,6 +147,12 @@ class ZigguratApplication(object):
         except Exception, err:
             self.logger.writeError(u'ERROR: Pyramid Application Creation Failed', err)
             raise
+
+        # Forces values to be strings instead of Unicode values when specified
+        if self.strEncodeEnviron:
+            for key, value in self._environ.iteritems():
+                if not isinstance(value, str):
+                    self._environ[key] = unicode(value).encode()
 
         try:
             return configs.make_wsgi_app()(environ, start_response)
