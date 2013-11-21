@@ -174,6 +174,13 @@ class ZigguratBaseView(object):
         if self._lastModified is not None:
             response.last_modified = self._lastModified
 
+        # If required encode the response headers as strings to prevent unicode errors. This is
+        # necessary for certain WSGI server applications, e.g. flup.
+        if self.ziggurat.strEncodeEnviron:
+            for n, v in respone.headers:
+                if isinstance(v, unicode):
+                    response.headers[n] = v.encode()
+
         # Clean up per-thread sessions.
         ConcreteModelsMeta.cleanupSessions()
 

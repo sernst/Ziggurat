@@ -155,7 +155,7 @@ class ZigguratApplication(object):
                     self._environ[key] = unicode(value).encode()
 
         try:
-            return configs.make_wsgi_app()(environ, start_response)
+            return self._pyramidApp(self._environ, self._startResponse)
         except Exception, err:
             self.logger.writeError([
                 u'ERROR: WSGI Application Creation Failed',
