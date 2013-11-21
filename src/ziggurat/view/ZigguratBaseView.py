@@ -177,7 +177,7 @@ class ZigguratBaseView(object):
         # If required encode the response headers as strings to prevent unicode errors. This is
         # necessary for certain WSGI server applications, e.g. flup.
         if self.ziggurat.strEncodeEnviron:
-            for n, v in respone.headers:
+            for n, v in response.headers:
                 if isinstance(v, unicode):
                     response.headers[n] = v.encode()
 
