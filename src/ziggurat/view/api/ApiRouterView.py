@@ -74,7 +74,7 @@ class ApiRouterView(ZigguratDataView):
     def incomingTimecode(self):
         if not self._incomingTimestamp:
             self._incomingTimestamp = TimeUtils.timecodeToDatetime(
-                self.fetchApiZarg('z_tcode', u''),
+                self.fetchApiZarg('__tcode__', u''),
                 self._request.ziggurat.timecodeOffset)
         return self._incomingTimestamp
 
