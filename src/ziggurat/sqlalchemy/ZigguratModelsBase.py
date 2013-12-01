@@ -61,6 +61,11 @@ class ZigguratModelsBase(object):
     def logger(self):
         return ZigguratModelUtils.logger
 
+#___________________________________________________________________________________________________ GS: session
+    @property
+    def session(self):
+        return self.createSession()
+
 #===================================================================================================
 #                                                                                     P U B L I C
 
@@ -72,6 +77,11 @@ class ZigguratModelsBase(object):
             The name of the property to retrieve. """
 
         return getattr(self, name)
+
+#___________________________________________________________________________________________________ createSession
+    @classmethod
+    def createSession(cls):
+        return cls._session.getRawSession()
 
 #===================================================================================================
 #                                                                               P R O T E C T E D
