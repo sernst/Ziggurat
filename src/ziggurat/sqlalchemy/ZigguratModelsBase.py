@@ -1,5 +1,5 @@
 # ZigguratModelsBase.py
-# (C)2012-2013
+# (C)2012-2014
 # Eric David Wills and Scott Ernst
 
 import datetime
@@ -7,7 +7,6 @@ import datetime
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
-from sqlalchemy import orm
 
 from pyaid.radix.Base36 import Base36
 from pyaid.radix.Base64 import Base64
@@ -34,7 +33,6 @@ class ZigguratModelsBase(object):
         self.ormInit()
 
 #___________________________________________________________________________________________________ ormInit
-    @orm.reconstructor
     def ormInit(self):
         pass
 

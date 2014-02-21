@@ -1,8 +1,9 @@
 # AbstractModelsMeta.py
-# (C)2012-2013
+# (C)2012-2014
 # Scott Ernst and Eric David Wills
 
 from sqlalchemy import Column
+from sqlalchemy import orm
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -69,9 +70,17 @@ class AbstractModelsMeta(DeclarativeMeta):
         if name in this._registry:
             return this._registry[name]
 
+        # New method to be wrapped as the ORM reconstructor
+        def reconstructor(self):
+            self.ormInit()
+
         from ziggurat.sqlalchemy.meta.ConcreteModelsMeta import ConcreteModelsMeta
         this._registry[name] = ConcreteModelsMeta(
-            name, (cls,), {'__module__':cls.__module__, 'IS_MASTER':isMaster})
+            name, (cls,), {
+                '__module__':cls.__module__,
+                'IS_MASTER':isMaster,
+                'ormReconstructor':orm.reconstructor(reconstructor) })
+
         return this._registry[name]
 
 #===================================================================================================
