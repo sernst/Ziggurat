@@ -1,5 +1,5 @@
 # ZigguratApplication.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 import os
@@ -23,8 +23,8 @@ class ZigguratApplication(object):
 
 #___________________________________________________________________________________________________ __init__
     def __init__(
-                self, appFilePath =None, appName =None, rootPath =None, configuratorClass =None,
-                **kwargs
+            self, appFilePath =None, appName =None, rootPath =None, configuratorClass =None,
+            logPath =None, **kwargs
     ):
         """Creates a new instance of ZigguratApplication."""
         ZigguratModelUtils.isWebEnvironment = True
@@ -32,6 +32,7 @@ class ZigguratApplication(object):
         self.strEncodeEnviron = ArgsUtils.get('strEncodeEnviron', False, kwargs)
 
         self._name              = appName
+        self._logPath           = logPath
         self._environ           = None
         self._startResponse     = None
         self._logger            = None
@@ -96,6 +97,8 @@ class ZigguratApplication(object):
 #___________________________________________________________________________________________________ GS: logPath
     @property
     def logPath(self):
+        if self._logPath:
+            return self._logPath
         return FileUtils.createPath(self.rootPath, 'operations', 'logs', isDir=True)
 
 #___________________________________________________________________________________________________ GS: configuratorClass

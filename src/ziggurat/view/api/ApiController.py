@@ -1,5 +1,5 @@
 # ApiController.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 #___________________________________________________________________________________________________ ApiController
@@ -15,7 +15,35 @@ class ApiController(object):
         self._router  = router
 
 #===================================================================================================
+#                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: router
+    @property
+    def router(self):
+        return self._router
+
+#___________________________________________________________________________________________________ GS: response
+    @property
+    def response(self):
+        return self.router.response
+
+#___________________________________________________________________________________________________ GS: logger
+    @property
+    def logger(self):
+        return self._router.log
+
+#===================================================================================================
 #                                                                                     P U B L I C
+
+#___________________________________________________________________________________________________ fetchApiZarg
+    def fetchApiZarg(self, name, default =None, zargType =None):
+        """fetchApiZarg doc..."""
+        return self.router.fetchApiZarg(name, default=default, zargType=zargType)
+
+#___________________________________________________________________________________________________ appendResponse
+    def appendResponse(self, **kwargs):
+        """addToResponse doc..."""
+        return self.router.addToResponse(**kwargs)
 
 #___________________________________________________________________________________________________ authorizeApiAction
     def authorizeApiAction(self):
