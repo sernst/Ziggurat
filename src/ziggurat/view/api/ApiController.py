@@ -46,7 +46,7 @@ class ApiController(object):
         return self.router.addToResponse(**kwargs)
 
 #___________________________________________________________________________________________________ authorizeApiAction
-    def authorizeApiAction(self):
+    def authorizeApiAction(self, actionMethod):
         return True
 
 #===================================================================================================

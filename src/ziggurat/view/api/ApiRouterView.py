@@ -114,10 +114,6 @@ class ApiRouterView(ZigguratDataView):
             return ArgsUtils.getAs(name, default, self._zargs, zargType)
         return ArgsUtils.get(name, default, self._zargs)
 
-#___________________________________________________________________________________________________ __str__
-    def __str__(self):
-        return '[%s: %s.%s]' % (str(self.__class__.__name__), str(self.category), str(self.action))
-
 #===================================================================================================
 #                                                                               P R O T E C T E D
 
@@ -134,8 +130,9 @@ class ApiRouterView(ZigguratDataView):
             controller = getattr(res, controllerClass)(self)
 
             # If authorized execute the action method, otherwise create a invalid request response
-            if controller.authorizeApiAction():
-                result = getattr(controller, self.action)()
+            method = getattr(controller, self.action)
+            if controller.authorizeApiAction(method):
+                result = method()
             else:
                 result = ViewResponse(
                     u'ERROR:' + self.apiID,
@@ -166,3 +163,10 @@ class ApiRouterView(ZigguratDataView):
             return
 
         self._response['__tcode__'] = self.outgoingTimecode
+
+#===================================================================================================
+#                                                                               I N T R I N S I C
+
+#___________________________________________________________________________________________________ __str__
+    def __str__(self):
+        return '[%s: %s.%s]' % (str(self.__class__.__name__), str(self.category), str(self.action))
