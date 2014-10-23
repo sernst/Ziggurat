@@ -30,7 +30,7 @@ class ApiController(object):
 #___________________________________________________________________________________________________ GS: logger
     @property
     def logger(self):
-        return self._router.log
+        return self._router.logger
 
 #===================================================================================================
 #                                                                                     P U B L I C

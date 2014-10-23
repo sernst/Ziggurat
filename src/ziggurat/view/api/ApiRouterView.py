@@ -123,7 +123,7 @@ class ApiRouterView(ZigguratDataView):
 
         controllerClass = self.category + 'Controller'
         package         = self._root + '.' + controllerClass
-
+        self.logger.write('CC: %s PACKAGE: %s' % (controllerClass, package))
         try:
             # Import the Controller class
             res        = __import__(package, globals(), locals(), [controllerClass])
