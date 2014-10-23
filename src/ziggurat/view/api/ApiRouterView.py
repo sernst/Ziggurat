@@ -143,10 +143,11 @@ class ApiRouterView(ZigguratDataView):
             if inspect.ismethod(method) and controller(method):
                 result = method()
             else:
-                result = self._createErrorResponse(
-                    ident=u'ERROR:' + self.apiID,
-                    label=u'Unauthorized Request',
-                    message=u'This unauthorized request was rejected')
+                if not self._explicitResponse or not isinstance(result, ViewResponse):
+                    result = self._createErrorResponse(
+                        ident=u'ERROR:' + self.apiID,
+                        label=u'Unauthorized Request',
+                        message=u'This unauthorized request was rejected')
 
             if isinstance(result, ViewResponse):
                 self._explicitResponse = result
