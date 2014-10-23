@@ -140,6 +140,7 @@ class ApiRouterView(ZigguratDataView):
 
             # If authorized execute the action method, otherwise create a invalid request response
             method = getattr(controller, self.action)
+            result = None
             if inspect.ismethod(method) and controller(method):
                 result = method()
             else:
@@ -158,11 +159,17 @@ class ApiRouterView(ZigguratDataView):
                 return
 
         except Exception, err:
+            try:
+                zargs = unicode(self.zargs)
+            except Exception, err:
+                zargs = u'[Unable to display as unicode string]'
+
             self._logger.writeError([
                 u'API ROUTING FAILURE: ' + unicode(self.__module__.split('.')[-1]),
                 u'Package: ' + unicode(package),
                 u'Controller: ' + unicode(controllerClass),
                 u'Category: ' + unicode(self.category),
+                u'Zargs: ' + zargs,
                 u'Action: ' + unicode(self.action) ], err)
 
             self._explicitResponse = self._createErrorResponse(
