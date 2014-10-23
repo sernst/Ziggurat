@@ -36,21 +36,26 @@ class ApiController(object):
 #                                                                                     P U B L I C
 
 #___________________________________________________________________________________________________ fetchApiZarg
-    def fetchApiZarg(self, name, default =None, zargType =None):
+    def _fetchApiZarg(self, name, default =None, zargType =None):
         """fetchApiZarg doc..."""
         return self.router.fetchApiZarg(name, default=default, zargType=zargType)
 
 #___________________________________________________________________________________________________ appendResponse
-    def appendResponse(self, **kwargs):
+    def _appendResponse(self, **kwargs):
         """addToResponse doc..."""
         return self.router.addToResponse(**kwargs)
 
 #___________________________________________________________________________________________________ authorizeApiAction
-    def authorizeApiAction(self, actionMethod):
+    def _authorizeApiAction(self, actionMethod):
         return True
 
 #===================================================================================================
 #                                                                               I N T R I N S I C
+
+#___________________________________________________________________________________________________ __call__
+    def __call__(self, actionMethod):
+        """__call__ doc..."""
+        return self._authorizeApiAction(actionMethod)
 
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):

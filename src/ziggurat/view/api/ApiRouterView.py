@@ -1,6 +1,8 @@
 # ApiRouterView.py
-# (C)2011-2013
+# (C)2011-2014
 # Scott Ernst and Eric David Wills
+
+import inspect
 
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.ClassUtils import ClassUtils
@@ -29,7 +31,7 @@ class ApiRouterView(ZigguratDataView):
         # Determine root package
         self._root = rootPackage if rootPackage else ClassUtils.getModulePackage(self.__class__, 1)
 
-        zargs = self.getArg('zg_args', None)
+        zargs = self.getArg('zargs', None)
         if zargs:
             try:
                 self._zargs = JSON.fromString(zargs)
@@ -37,7 +39,7 @@ class ApiRouterView(ZigguratDataView):
                 self._zargs = None
         else:
             self._zargs = None
-        self._signature = self.getArg('zg_sig', '')
+        self._signature = self.getArg('sig', '')
 
         self._incomingTimestamp = None
         self._outgoingTimestamp = None
@@ -123,21 +125,28 @@ class ApiRouterView(ZigguratDataView):
 
         controllerClass = self.category + 'Controller'
         package         = self._root + '.' + controllerClass
-        self.logger.write('CC: %s PACKAGE: %s' % (controllerClass, package))
+
         try:
+            # Filter illegal actions
+            if not self.category or not self.action or self.action.startswith('_'):
+                retuls = self._createErrorResponse(
+                    ident=u'ERROR:' + self.apiID,
+                    label=u'Invalid Action',
+                    message=u'The specified action is invalid')
+
             # Import the Controller class
             res        = __import__(package, globals(), locals(), [controllerClass])
             controller = getattr(res, controllerClass)(self)
 
             # If authorized execute the action method, otherwise create a invalid request response
             method = getattr(controller, self.action)
-            if controller.authorizeApiAction(method):
+            if inspect.ismethod(method) and controller(method):
                 result = method()
             else:
-                result = ViewResponse(
-                    u'ERROR:' + self.apiID,
-                    u'Unauthorized Request',
-                    u'This unauthorized request was rejected')
+                result = self._createErrorResponse(
+                    ident=u'ERROR:' + self.apiID,
+                    label=u'Unauthorized Request',
+                    message=u'This unauthorized request was rejected')
 
             if isinstance(result, ViewResponse):
                 self._explicitResponse = result
@@ -155,14 +164,19 @@ class ApiRouterView(ZigguratDataView):
                 u'Category: ' + unicode(self.category),
                 u'Action: ' + unicode(self.action) ], err)
 
-            self._explicitResponse = ViewResponse(
-                u'ERROR:' + self.apiID,
-                u'Invalid Request',
-                u'This unknown or invalid request was aborted')
+            self._explicitResponse = self._createErrorResponse(
+                ident=u'ERROR:' + self.apiID,
+                label=u'Invalid Request',
+                message=u'This unknown or invalid request was aborted')
             self._createExplicitResponse()
             return
 
-        self._response['__tcode__'] = self.outgoingTimecode
+        self._response['__ztime__'] = self.outgoingTimecode
+
+#___________________________________________________________________________________________________ _createErrorResponse
+    def _createErrorResponse(self, ident, **kwargs):
+        """_createErrorResponse doc..."""
+        return ViewResponse(ident, **kwargs)
 
 #===================================================================================================
 #                                                                               I N T R I N S I C

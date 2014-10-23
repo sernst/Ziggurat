@@ -1,5 +1,5 @@
 # ViewResponse.py
-# (C)2013
+# (C)2013-2014
 # Scott Ernst
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -11,18 +11,25 @@ class ViewResponse(object):
 #===================================================================================================
 #                                                                                       C L A S S
 
+    DEFAULT_KIND = 'MESSAGE'
+
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, ident, label, message, **kwargs):
+    def __init__(self, ident, label =None, message =None, **kwargs):
         """Creates a new instance of ViewResponse."""
         self._id      = ident
         self._label   = label
         self._message = message
-
+        self._kind    = ArgsUtils.get('kind', self.DEFAULT_KIND, kwargs)
         self._allowCaching = ArgsUtils.get('allowCaching', False, kwargs)
         self._data = ArgsUtils.getAsDict('data', kwargs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
+
+#___________________________________________________________________________________________________ GS: kind
+    @property
+    def kind(self):
+        return self._kind
 
 #___________________________________________________________________________________________________ GS: id
     @property
@@ -56,6 +63,7 @@ class ViewResponse(object):
     def toDict(self, view):
         """Converts the object to a dictionary for rendering to a JSON response."""
         return self._toDictImpl(dict(
+            __kind__=self.kind,
             id=self.id,
             data=self.data,
             label=self.label,
