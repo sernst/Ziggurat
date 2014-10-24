@@ -6,6 +6,7 @@ import inspect
 
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.ClassUtils import ClassUtils
+from pyaid.dict.DictUtils import DictUtils
 from pyaid.json.JSON import JSON
 from pyaid.time.TimeUtils import TimeUtils
 
@@ -93,6 +94,14 @@ class ApiRouterView(ZigguratDataView):
 #===================================================================================================
 #                                                                                     P U B L I C
 
+#___________________________________________________________________________________________________ echo
+    def echo(self):
+        return dict(
+            apiID=self.apiID,
+            signature=self.signature,
+            zargs=self.zargs,
+            incomingTimecode=self.incomingTimecode)
+
 #___________________________________________________________________________________________________ addToResponse
     def addToResponse(self, **kwargs):
         for n,v in kwargs.iteritems():
@@ -159,18 +168,13 @@ class ApiRouterView(ZigguratDataView):
                 return
 
         except Exception, err:
-            try:
-                zargs = unicode(self.zargs)
-            except Exception, err:
-                zargs = u'[Unable to display as unicode string]'
+            me = self.echo()
+            me['Package'] = package
+            me['Controller'] = controllerClass
 
-            self._logger.writeError([
-                u'API ROUTING FAILURE: ' + unicode(self.__module__.split('.')[-1]),
-                u'Package: ' + unicode(package),
-                u'Controller: ' + unicode(controllerClass),
-                u'Category: ' + unicode(self.category),
-                u'Zargs: ' + zargs,
-                u'Action: ' + unicode(self.action) ], err)
+            self._logger.writeError(u'API ROUTING FAILURE: %s\n%s' % (
+                self.__class__.__name__,
+                DictUtils.prettyPrint(me, u'\n  ') ), err)
 
             self._explicitResponse = self._createErrorResponse(
                 ident=u'ERROR:' + self.apiID,
