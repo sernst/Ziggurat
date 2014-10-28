@@ -11,6 +11,9 @@ from pyaid.threading.ThreadUtils import ThreadUtils
 # AS NEEDED: from ziggurat.ZigguratApplication import ZigguratApplication
 
 #___________________________________________________________________________________________________ ServerLogger
+from pyaid.time.TimeUtils import TimeUtils
+
+
 class ServerLogger(Logger):
     """A class for logging information in the operations/logs directory."""
 
@@ -61,4 +64,4 @@ class ServerLogger(Logger):
 
         threadID = ThreadUtils.getCurrentID()
         return unicode(
-            self._getTime().strftime('[%a %H:%M <%S.%f>') + u'<' + threadID + u'>' + info + loc)
+            TimeUtils.toFormat('[%a %H:%M <%S.%f>') + u'<' + threadID + u'>' + info + loc)
