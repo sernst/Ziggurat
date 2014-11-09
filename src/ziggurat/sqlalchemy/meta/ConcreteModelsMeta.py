@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
+from pyaid.dict.DictUtils import DictUtils
+from pyaid.string.StringUtils import StringUtils
 from sqlalchemy import exc
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,6 +14,7 @@ from ziggurat.sqlalchemy.ExternalKeyProperty import ExternalKeyProperty
 from ziggurat.sqlalchemy.SqlAlchemyResult import SqlAlchemyResult
 from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
 from ziggurat.sqlalchemy.session.SqlAlchemyMasterSession import SqlAlchemyMasterSession
+
 # AS NEEDED: from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 # AS NEEDED: from ziggurat.sqlalchemy.session.SqlAlchemySlaveSession import SqlAlchemySlaveSession
 
@@ -47,7 +50,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
             databaseDef = slaveDbDef
 
         if not databaseDef:
-            raise Exception, 'ERROR: No database definition specified!'
+            raise Exception('ERROR: No database definition specified!')
 
         attrs['_DATABASE'] = databaseDef
 
@@ -97,7 +100,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         declaredBase = (attrs['_BASE'],)
         try:
             bases = bases + declaredBase
-        except Exception, err:
+        except Exception as err:
             bases = declaredBase
 
         return AbstractModelsMeta.__new__(cls, name, bases, attrs)
@@ -136,7 +139,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
             return
 
         s += '\n\tMODEL REGISTRY:'
-        for n,v in base._decl_class_registry.iteritems():
+        for n,v in DictUtils.iter(base._decl_class_registry):
             s += '\n\t\t' + str(n) + '(' + str(v.__module__) + ')'
 
         return s
@@ -163,14 +166,14 @@ class ConcreteModelsMeta(AbstractModelsMeta):
     def createQuery(cls, *args):
         try:
             return cls._session.createQuery(*args if args else [cls])
-        except Exception, err:
+        except Exception as err:
             AbstractModelsMeta.logger.writeError([
-                'Query Creation Failure: ' + unicode(cls.__name__),
-                'META: ' + unicode(cls.__base__.metadata),
-                'REGISTRY: ' + unicode(cls.__base__._decl_class_registry),
-                'ENGINES: ' + unicode(ConcreteModelsMeta._engines),
-                'SESSIONS: ' + unicode(ConcreteModelsMeta._sessions),
-                'ABSTRACT REGISTRY: ' + unicode(AbstractModelsMeta._registry) ], err)
+                'Query Creation Failure: ' + StringUtils.toUnicode(cls.__name__),
+                'META: ' + StringUtils.toUnicode(cls.__base__.metadata),
+                'REGISTRY: ' + StringUtils.toUnicode(cls.__base__._decl_class_registry),
+                'ENGINES: ' + StringUtils.toUnicode(ConcreteModelsMeta._engines),
+                'SESSIONS: ' + StringUtils.toUnicode(ConcreteModelsMeta._sessions),
+                'ABSTRACT REGISTRY: ' + StringUtils.toUnicode(AbstractModelsMeta._registry) ], err)
             raise err
 
 #___________________________________________________________________________________________________ createResult
@@ -215,11 +218,11 @@ def ping_connection(dbapi_connection, connection_record, connection_proxy):
     cursor = dbapi_connection.cursor()
     try:
         cursor.execute("SELECT 1")
-    except Exception, err:
+    except Exception as err:
         # raise DisconnectionError - pool will try
         # connecting again up to three times before raising.
         AbstractModelsMeta.logger.writeError('Cursor FAILED', err)
-        print 'CURSOR FAILURE'
+        print('CURSOR FAILURE')
         raise exc.DisconnectionError()
     cursor.close()
 

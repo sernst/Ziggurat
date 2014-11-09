@@ -2,18 +2,19 @@
 # (C)2012-2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import re
 
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.debug.Logger import Logger
+from pyaid.string.StringUtils import StringUtils
 from pyaid.threading.ThreadUtils import ThreadUtils
+from pyaid.time.TimeUtils import TimeUtils
 
 # AS NEEDED: from ziggurat.ZigguratApplication import ZigguratApplication
 
 #___________________________________________________________________________________________________ ServerLogger
-from pyaid.time.TimeUtils import TimeUtils
-
-
 class ServerLogger(Logger):
     """A class for logging information in the operations/logs directory."""
 
@@ -43,25 +44,25 @@ class ServerLogger(Logger):
     def getPrefix(self, *args, **kwargs):
         if self._locationPrefix:
             item = self.getStackData()[-1]
-            loc  = u' -> %s #%s]' % (item['file'], unicode(item['line']))
+            loc  = ' -> %s #%s]' % (item['file'], StringUtils.toUnicode(item['line']))
         else:
-            loc = u']'
+            loc = ']'
 
         if self._app and self._app.pyramidApp:
             wsgi     = self._app.environ
             initials = self._INITIALS_RX.sub('', ArgsUtils.get('REMOTE_USER', '', wsgi))
             if initials:
-                initials += u' | '
+                initials += ' | '
 
             domainName  = ArgsUtils.get('SERVER_NAME', '', wsgi)
             uriPath = ArgsUtils.get(
                 'REQUEST_URI',
                 ArgsUtils.get('HTTP_REQUEST_URI', '', wsgi), wsgi)
 
-            info = u' <' + initials + domainName + uriPath + u'>'
+            info = ' <' + initials + domainName + uriPath + '>'
         else:
-            info = u''
+            info = ''
 
         threadID = ThreadUtils.getCurrentID()
-        return unicode(
-            TimeUtils.toFormat('[%a %H:%M <%S.%f>') + u'<' + threadID + u'>' + info + loc)
+        return StringUtils.toUnicode(
+            TimeUtils.toFormat('[%a %H:%M <%S.%f>') + '<' + threadID + '>' + info + loc)

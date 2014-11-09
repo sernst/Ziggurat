@@ -2,6 +2,8 @@
 # (C)2011-2014
 # Scott Ernst and Eric David Wills
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import inspect
 
 from pyaid.ArgsUtils import ArgsUtils
@@ -36,7 +38,7 @@ class ApiRouterView(ZigguratDataView):
         if zargs:
             try:
                 self._zargs = JSON.fromString(zargs)
-            except Exception, err:
+            except Exception as err:
                 self._zargs = None
         else:
             self._zargs = None
@@ -51,14 +53,14 @@ class ApiRouterView(ZigguratDataView):
 #___________________________________________________________________________________________________ GS: apiID
     @property
     def apiID(self):
-        return self.category + u'-' + self.action
+        return self.category + '-' + self.action
 
 #___________________________________________________________________________________________________ GS: requestCategory
     @property
     def category(self):
         try:
             return self._request.matchdict['category']
-        except Exception, err:
+        except Exception as err:
             return None
 
 #___________________________________________________________________________________________________ GS: action
@@ -69,7 +71,7 @@ class ApiRouterView(ZigguratDataView):
             if reqID.startswith('_'):
                 return None
             return reqID
-        except Exception, err:
+        except Exception as err:
             return None
 
 #___________________________________________________________________________________________________ GS: incomingTimecode
@@ -77,7 +79,7 @@ class ApiRouterView(ZigguratDataView):
     def incomingTimecode(self):
         if not self._incomingTimestamp:
             self._incomingTimestamp = TimeUtils.timecodeToDatetime(
-                self.fetchApiZarg('__tcode__', u''),
+                self.fetchApiZarg('__tcode__', ''),
                 self._request.ziggurat.timecodeOffset)
         return self._incomingTimestamp
 
@@ -104,7 +106,7 @@ class ApiRouterView(ZigguratDataView):
 
 #___________________________________________________________________________________________________ addToResponse
     def addToResponse(self, **kwargs):
-        for n,v in kwargs.iteritems():
+        for n,v in DictUtils.iter(kwargs):
             self._response[n] = v
 
 #___________________________________________________________________________________________________ fetchApiZarg
@@ -139,9 +141,9 @@ class ApiRouterView(ZigguratDataView):
             # Filter illegal actions
             if not self.category or not self.action or self.action.startswith('_'):
                 retuls = self._createErrorResponse(
-                    ident=u'ERROR:' + self.apiID,
-                    label=u'Invalid Action',
-                    message=u'The specified action is invalid')
+                    ident='ERROR:' + self.apiID,
+                    label='Invalid Action',
+                    message='The specified action is invalid')
 
             # Import the Controller class
             res        = __import__(package, globals(), locals(), [controllerClass])
@@ -155,9 +157,9 @@ class ApiRouterView(ZigguratDataView):
             else:
                 if not self._explicitResponse and not isinstance(result, ViewResponse):
                     result = self._createErrorResponse(
-                        ident=u'ERROR:' + self.apiID,
-                        label=u'Unauthorized Request',
-                        message=u'This unauthorized request was rejected')
+                        ident='ERROR:' + self.apiID,
+                        label='Unauthorized Request',
+                        message='This unauthorized request was rejected')
 
             if isinstance(result, ViewResponse):
                 self._explicitResponse = result
@@ -167,19 +169,19 @@ class ApiRouterView(ZigguratDataView):
                 self._createExplicitResponse()
                 return
 
-        except Exception, err:
+        except Exception as err:
             me = self.echo()
             me['Package'] = package
             me['Controller'] = controllerClass
 
-            self._logger.writeError(u'API ROUTING FAILURE: %s\n%s' % (
+            self._logger.writeError('API ROUTING FAILURE: %s\n%s' % (
                 self.__class__.__name__,
-                DictUtils.prettyPrint(me, u'\n  ') ), err)
+                DictUtils.prettyPrint(me, '\n  ') ), err)
 
             self._explicitResponse = self._createErrorResponse(
-                ident=u'ERROR:' + self.apiID,
-                label=u'Invalid Request',
-                message=u'This unknown or invalid request was aborted')
+                ident='ERROR:' + self.apiID,
+                label='Invalid Request',
+                message='This unknown or invalid request was aborted')
             self._createExplicitResponse()
             return
 

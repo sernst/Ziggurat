@@ -2,9 +2,12 @@
 # (C) 2012-2013
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import time
 
 from sqlalchemy.orm import exc
+
 # AS NEEDED: from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
 
 #___________________________________________________________________________________________________ SqlAlchemyResult
@@ -30,14 +33,14 @@ class SqlAlchemyResult(object):
     def scalar(self):
         try:
             return self._getResult(self._query.scalar, exc.MultipleResultsFound)
-        except Exception, err:
+        except Exception:
             return None
 
 #___________________________________________________________________________________________________ one
     def one(self):
         try:
             return self._getResult(self._query.one, (exc.NoResultFound, exc.MultipleResultsFound))
-        except Exception, err:
+        except Exception:
             return None
 
 #___________________________________________________________________________________________________ first
@@ -67,9 +70,9 @@ class SqlAlchemyResult(object):
                     else:
                         result = result.with_lockmode("read")
                 return result
-            except passErrors, err:
+            except passErrors as err:
                 raise err
-            except Exception, err:
+            except Exception as err:
                 from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
                 AbstractModelsMeta.logger.writeError(
                     '[%s] BAD CURSOR ACTION: %s' % (str(i), str(function)), err)
@@ -85,9 +88,9 @@ class SqlAlchemyResult(object):
                 else:
                     result = result.with_lockmode("read")
             return result
-        except passErrors, err:
+        except passErrors as err:
             raise err
-        except Exception, err:
+        except Exception as err:
             from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
             AbstractModelsMeta.logger.writeError('FAILED CURSOR ACTION: %s'% str(function), err)
 

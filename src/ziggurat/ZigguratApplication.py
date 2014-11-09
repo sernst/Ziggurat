@@ -2,10 +2,14 @@
 # (C)2013-2014
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 
 from pyaid.ArgsUtils import ArgsUtils
+from pyaid.dict.DictUtils import DictUtils
 from pyaid.file.FileUtils import FileUtils
+from pyaid.string.StringUtils import StringUtils
 from pyaid.threading.ThreadUtils import ThreadUtils
 
 from ziggurat.config.StandardConfigurator import StandardConfigurator
@@ -48,7 +52,7 @@ class ZigguratApplication(object):
         if not os.path.exists(self.logPath):
             os.makedirs(self.logPath)
             self.logger.write(
-                u'WARNING: Created missing application path: ' + unicode(self._rootPath))
+                'WARNING: Created missing application path: ' + StringUtils.toUnicode(self._rootPath))
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -134,38 +138,38 @@ class ZigguratApplication(object):
 
         try:
             self._initialize()
-        except Exception, err:
+        except Exception as err:
             self.logger.writeError([
-                u'ERROR: Ziggurat App Initialization Failed',
-                u'ENVIRON: ' + unicode(environ),
-                u'RESPONSE: ' + unicode(start_response) ], err)
+                'ERROR: Ziggurat App Initialization Failed',
+                'ENVIRON: ' + StringUtils.toUnicode(environ),
+                'RESPONSE: ' + StringUtils.toUnicode(start_response) ], err)
             raise
 
         try:
             configs = self.configurator
             configs.populateConfigs()
-        except Exception, err:
-            self.logger.writeError(u'ERROR: Configurator Initialization Failed', err)
+        except Exception as err:
+            self.logger.writeError('ERROR: Configurator Initialization Failed', err)
             raise
 
         try:
             self._pyramidApp = configs.make_wsgi_app()
-        except Exception, err:
-            self.logger.writeError(u'ERROR: Pyramid Application Creation Failed', err)
+        except Exception as err:
+            self.logger.writeError('ERROR: Pyramid Application Creation Failed', err)
             raise
 
         # Forces values to be strings instead of Unicode values when specified
         if self.strEncodeEnviron:
-            for key, value in self._environ.iteritems():
+            for key, value in DictUtils.iter(self._environ):
                 if not isinstance(value, str):
-                    self._environ[key] = unicode(value).encode()
+                    self._environ[key] = StringUtils.toUnicode(value).encode()
 
         try:
             return self._pyramidApp(self._environ, self._startResponse)
-        except Exception, err:
+        except Exception as err:
             self.logger.writeError([
-                u'ERROR: WSGI Application Creation Failed',
-                u'CONFIGURATOR: ' + unicode(configs) ], err)
+                'ERROR: WSGI Application Creation Failed',
+                'CONFIGURATOR: ' + StringUtils.toUnicode(configs) ], err)
             raise
 
 #___________________________________________________________________________________________________ _getConfigSettings
@@ -190,11 +194,11 @@ class ZigguratApplication(object):
             return self._createApp(
                 ArgsUtils.getAsDict('environ', kwargs, args, 0),
                 ArgsUtils.get('start_response', None, kwargs, args, 1) )
-        except Exception, err:
+        except Exception as err:
             self.logger.writeError([
-                u'ERROR: Application Creation Failed',
-                u'ARGS: ' + unicode(args),
-                u'KWARGS: ' + unicode(kwargs) ], err)
+                'ERROR: Application Creation Failed',
+                'ARGS: ' + StringUtils.toUnicode(args),
+                'KWARGS: ' + StringUtils.toUnicode(kwargs) ], err)
             raise
 
 #___________________________________________________________________________________________________ __repr__
@@ -203,7 +207,7 @@ class ZigguratApplication(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

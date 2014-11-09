@@ -2,10 +2,12 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import re
 
+from pyaid.string.StringUtils import StringUtils
 from pyramid.config import Configurator
-
 from pyaid.file.FileUtils import FileUtils
 
 #___________________________________________________________________________________________________ StandardConfigurator
@@ -96,7 +98,7 @@ class StandardConfigurator(Configurator):
         importDef.insert(0, package if package else self.rootViewPackage)
 
         self.add_route(name, pattern)
-        self.add_view(u'.'.join(importDef), route_name=name, renderer=renderer)
+        self.add_view('.'.join(importDef), route_name=name, renderer=renderer)
 
 #___________________________________________________________________________________________________ addStaticRouteItem
     def addStaticRouteItem(self, name, path):
@@ -127,7 +129,7 @@ class StandardConfigurator(Configurator):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

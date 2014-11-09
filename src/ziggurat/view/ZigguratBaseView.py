@@ -2,15 +2,18 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+from pyaid.string.StringUtils import StringUtils
+
 import transaction
-
+from pyaid.dict.DictUtils import DictUtils
 from pyramid.httpexceptions import HTTPFound, HTTPServerError
-
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.time.TimeUtils import TimeUtils
 
 from ziggurat.view.response.ViewResponse import ViewResponse
 from ziggurat.sqlalchemy.meta.ConcreteModelsMeta import ConcreteModelsMeta
+
 
 #___________________________________________________________________________________________________ ZigguratBaseView
 class ZigguratBaseView(object):
@@ -67,11 +70,11 @@ class ZigguratBaseView(object):
     def isSecure(self):
         key = 'HTTP_X_FORWARDED_PROTO'
         if key in self._request.environ:
-            return self._request.environ[key] == u'https'
+            return self._request.environ[key] == 'https'
 
         key = 'wsgi.url_scheme'
         if key in self._request.environ:
-            return self._request[key] == u'https'
+            return self._request[key] == 'https'
 
         return False
 
@@ -114,7 +117,7 @@ class ZigguratBaseView(object):
 
             if isinstance(result, ViewResponse):
                 self._createExplicitResponse(result)
-        except Exception, err:
+        except Exception as err:
             self._logger.writeError('FAILED [createResponse]', err)
 
         return self._response
@@ -131,7 +134,7 @@ class ZigguratBaseView(object):
         if self.isSecure:
             return False
 
-        self._renderRedirect(u'https' + self._request.url[4:])
+        self._renderRedirect('https' + self._request.url[4:])
         return True
 
 #___________________________________________________________________________________________________ _createExplicitResponse
@@ -156,7 +159,7 @@ class ZigguratBaseView(object):
         """Event handler for the response object being ready for use."""
 
         if self._cacheControlPublic:
-            response.cache_control = u'public'
+            response.cache_control = 'public'
 
         #-------------------------------------------------------------------------------------------
         # Cache Expiration: Set the caching values according to the _expires property
@@ -169,7 +172,7 @@ class ZigguratBaseView(object):
         #-------------------------------------------------------------------------------------------
         # Cache Validators
         if self._etag is not None:
-            response.etag = unicode(self._etag)
+            response.etag = StringUtils.toUnicode(self._etag)
 
         if self._lastModified is not None:
             response.last_modified = self._lastModified
@@ -177,8 +180,8 @@ class ZigguratBaseView(object):
         # If required encode the response headers as strings to prevent unicode errors. This is
         # necessary for certain WSGI server applications, e.g. flup.
         if self.ziggurat.strEncodeEnviron:
-            for n, v in response.headers.iteritems():
-                if isinstance(v, unicode):
+            for n, v in DictUtils.iter(response.headers):
+                if StringUtils.isStringType(v):
                     response.headers[n] = v.encode()
 
         # Clean up per-thread sessions.
@@ -201,7 +204,7 @@ class ZigguratBaseView(object):
 
 #___________________________________________________________________________________________________ __unicode__
     def __unicode__(self):
-        return unicode(self.__str__())
+        return StringUtils.toUnicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

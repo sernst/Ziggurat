@@ -2,6 +2,8 @@
 # (C)2012-2013
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 #___________________________________________________________________________________________________ ExternalKeyProperty
 class ExternalKeyProperty(object):
 
@@ -25,7 +27,7 @@ class ExternalKeyProperty(object):
             self._externalIsMaster = wrappedSelf.IS_MASTER
 
         if not self._externalModel:
-            raise Exception, 'ERROR: Unknown model specification'
+            raise Exception('ERROR: Unknown model specification')
 
         externalColumn = getattr(self._externalModel, self._externalColumnName)
         localColumn    = getattr(wrappedSelf, self._localColumnName)

@@ -2,6 +2,9 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+from pyaid.string.StringUtils import StringUtils
+
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 
@@ -27,7 +30,7 @@ class ZigguratDataView(ZigguratBaseView):
 #___________________________________________________________________________________________________ __call__
     def __call__(self):
         super(ZigguratDataView, self).__call__()
-        if isinstance(self._response, Response) or isinstance(self._response, basestring):
+        if isinstance(self._response, Response) or StringUtils.isStringType(self._response):
             return self._response
 
         return render_to_response('json', self._response, self._request)

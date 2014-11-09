@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import os
 
 from pyaid.decorators.ClassGetter import ClassGetter
@@ -48,7 +50,7 @@ class ZigguratModelUtils(object):
             try:
                 c.MASTER
                 c.SLAVE
-            except Exception, err:
+            except Exception as err:
                 cls.logger.writeError('Model Initialization Failure: ' + str(c.__name__), err)
 
 #___________________________________________________________________________________________________ createDatabaseDefinition
@@ -62,10 +64,6 @@ class ZigguratModelUtils(object):
 #___________________________________________________________________________________________________ __repr__
     def __repr__(self):
         return self.__str__()
-
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return unicode(self.__str__())
 
 #___________________________________________________________________________________________________ __str__
     def __str__(self):

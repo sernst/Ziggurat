@@ -1,9 +1,10 @@
 # ModelPropertySetter.py
-# (C)2012-2013
+# (C)2012-2014
 # Eric David Wills and Scott Ernst
 
-from sqlalchemy import Unicode
-from sqlalchemy import UnicodeText
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+from pyaid.string.StringUtils import StringUtils
 
 from ziggurat.sqlalchemy.meta.ModelProperty import ModelProperty
 
@@ -15,13 +16,7 @@ class ModelPropertySetter(ModelProperty):
 
 #___________________________________________________________________________________________________ __call__
     def __call__(self, wrappedSelf, value):
-        if isinstance(value, str):
-            try:
-                # Automatically decodes bytestrings to UTF-8 for storage in the database
-                c = getattr(wrappedSelf.__class__, self._name).property.columns[0]
-                if isinstance(c, Unicode) or isinstance(c, UnicodeText):
-                    value = value.decode('utf-8')
-            except Exception, err:
-                pass
+        if StringUtils.isStringType(value):
+            value = StringUtils.toUnicode(value)
 
         setattr(wrappedSelf, self._name, value)

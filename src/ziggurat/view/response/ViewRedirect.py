@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyaid.ArgsUtils import ArgsUtils
 
 from ziggurat.view.response.ViewResponse import ViewResponse
@@ -17,7 +19,7 @@ class ViewRedirect(ViewResponse):
     def __init__(self, id, url, **kwargs):
         """Creates a new instance of ViewRedirect."""
         self.url          = url
-        self.windowTarget = ArgsUtils.extract('windowTarget', u'_blank', kwargs)
+        self.windowTarget = ArgsUtils.extract('windowTarget', '_blank', kwargs)
         super(ViewRedirect, self).__init__(id=id, **kwargs)
 
 #===================================================================================================

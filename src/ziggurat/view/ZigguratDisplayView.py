@@ -2,6 +2,8 @@
 # (C)2011-2013
 # Scott Ernst and Eric David Wills
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.string.StringUtils import StringUtils
 from pyaid.web.mako.MakoRenderer import MakoRenderer
@@ -62,14 +64,14 @@ class ZigguratDisplayView(ZigguratBaseView):
                         logger=self.logger,
                         minify=self._minify,
                         data=response)
-                    self._request.response.content_type = u'text/html'
+                    self._request.response.content_type = 'text/html'
                     self._request.response.text = mr.render()
                 else:
-                    self.logger.write(u'Invalid or missing template: ' + unicode(t))
+                    self.logger.write('Invalid or missing template: ' + StringUtils.toUnicode(t))
             else:
                 return response
-        except Exception, err:
-            self.logger.writeError(u'Failed Mako rendering attempt', err)
+        except Exception as err:
+            self.logger.writeError('Failed Mako rendering attempt', err)
 
         # TODO: Should redirect to an error display page if responses are not strings.
         return self._request.response

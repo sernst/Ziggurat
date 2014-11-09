@@ -1,6 +1,7 @@
 # HelloController.py
 # (C)2013
 # Scott Ernst
+from pyaid.dict.DictUtils import DictUtils
 
 from pyaid.json.JSON import JSON
 
@@ -42,15 +43,15 @@ class HelloController(ApiController):
             model = ZigguratTest_Test.MASTER
 
             out = dict()
-            for name, value in self._router.ziggurat.environ.iteritems():
+            for name, value in DictUtils.iter(self._router.ziggurat.environ):
                 if name.upper() == name:
-                    out[name] = unicode(value)
+                    out[name] = StringUtils.toUnicode(value)
 
             entry = model()
             entry.infoData = out
             model.session.add(entry)
             model.session.flush()
-        except Exception, err:
+        except Exception as err:
             self._router.response['error'] = str(err)
             self._router.logger.writeError(u'MODEL ERROR', err)
             return

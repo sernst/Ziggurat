@@ -2,17 +2,20 @@
 # (C)2012-2014
 # Eric David Wills and Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 import datetime
 
+from pyaid.string.StringUtils import StringUtils
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
-
 from pyaid.radix.Base36 import Base36
 from pyaid.radix.Base64 import Base64
 
 from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
+
 
 #___________________________________________________________________________________________________ ZigguratModelsBase
 class ZigguratModelsBase(object):
@@ -95,17 +98,14 @@ class ZigguratModelsBase(object):
     def __repr__(self):
         return self.__str__()
 
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        modelInfo = self._getReprString()
-        return u'<%s[%s] cts[%s] upts[%s]%s>' % (
-            self.__class__.__name__,
-            unicode(self.i),
-            unicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else u'None'),
-            unicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else u'None'),
-            (u' ' + unicode(modelInfo)) if modelInfo else u'')
-
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
-        return self.__unicode__().encode('utf8', 'ignore')
+        modelInfo = self._getReprString()
+        return '<%s[%s] cts[%s] upts[%s]%s>' % (
+            self.__class__.__name__,
+            StringUtils.toUnicode(self.i),
+            StringUtils.toUnicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else 'None'),
+            StringUtils.toUnicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else 'None'),
+            (' ' + StringUtils.toUnicode(modelInfo)) if modelInfo else '')
+
 

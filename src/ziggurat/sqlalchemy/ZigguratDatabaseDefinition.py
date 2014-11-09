@@ -2,6 +2,8 @@
 # (C)2013
 # Scott Ernst
 
+from __future__ import print_function, absolute_import, unicode_literals, division
+
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
 
@@ -29,7 +31,7 @@ class ZigguratDatabaseDefinition(object):
             @param kwargs - Any number of other attributes, e.g. host or name, which are identical
                     to the property names of the class. """
 
-        self._host       = self._fetchValue('host', u'localhost', kwargs, copyFrom)
+        self._host       = self._fetchValue('host', 'localhost', kwargs, copyFrom)
         self._name       = self._fetchValue('name', None, kwargs, copyFrom)
         self._user       = self._fetchValue('user', None, kwargs, copyFrom)
         self._password   = self._fetchValue('password', None, kwargs, copyFrom)
@@ -202,10 +204,6 @@ class ZigguratDatabaseDefinition(object):
     def __repr__(self):
         return self.__str__()
 
-#___________________________________________________________________________________________________ __unicode__
-    def __unicode__(self):
-        return u'<%s[%s]: "%s@%s">' % (self.__class__.__name__, self.name, self.user, self.host)
-
 #___________________________________________________________________________________________________ __str__
     def __str__(self):
-        return self.__unicode__().decode('utf-8', 'ignore')
+        return '<%s[%s]: "%s@%s">' % (self.__class__.__name__, self.name, self.user, self.host)
