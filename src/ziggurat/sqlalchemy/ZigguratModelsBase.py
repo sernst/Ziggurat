@@ -15,15 +15,15 @@ from pyaid.radix.Base64 import Base64
 
 from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
-
+import six
 
 #___________________________________________________________________________________________________ ZigguratModelsBase
+@six.add_metaclass(AbstractModelsMeta)
 class ZigguratModelsBase(object):
 
 #===================================================================================================
 #                                                                                       C L A S S
 
-    __metaclass__  = AbstractModelsMeta
     __abstract__   = True
 
     _i      = Column(Integer, primary_key=True)
