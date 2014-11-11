@@ -67,7 +67,7 @@ class ZigguratDisplayView(ZigguratBaseView):
                     self._request.response.content_type = 'text/html'
                     self._request.response.text = mr.render()
                 else:
-                    self.logger.write('Invalid or missing template: ' + StringUtils.toUnicode(t))
+                    self.logger.write('Invalid or missing template: %s' % t)
             else:
                 return response
         except Exception as err:

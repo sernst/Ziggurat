@@ -51,8 +51,7 @@ class ZigguratApplication(object):
 
         if not os.path.exists(self.logPath):
             os.makedirs(self.logPath)
-            self.logger.write(
-                'WARNING: Created missing application path: ' + StringUtils.toUnicode(self._rootPath))
+            self.logger.write('WARNING: Created missing application path: %s' % self._rootPath)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -141,8 +140,8 @@ class ZigguratApplication(object):
         except Exception as err:
             self.logger.writeError([
                 'ERROR: Ziggurat App Initialization Failed',
-                'ENVIRON: ' + StringUtils.toUnicode(environ),
-                'RESPONSE: ' + StringUtils.toUnicode(start_response) ], err)
+                'ENVIRON: %s' % environ,
+                'RESPONSE: %s' % start_response ], err)
             raise
 
         try:
@@ -169,7 +168,7 @@ class ZigguratApplication(object):
         except Exception as err:
             self.logger.writeError([
                 'ERROR: WSGI Application Creation Failed',
-                'CONFIGURATOR: ' + StringUtils.toUnicode(configs) ], err)
+                'CONFIGURATOR: %s' % configs], err)
             raise
 
 #___________________________________________________________________________________________________ _getConfigSettings

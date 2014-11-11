@@ -106,6 +106,6 @@ class ZigguratModelsBase(object):
             StringUtils.toUnicode(self.i),
             StringUtils.toUnicode(self.cts.strftime('%m-%d-%y %H:%M:%S') if self.cts else 'None'),
             StringUtils.toUnicode(self.upts.strftime('%m-%d-%y %H:%M:%S') if self.upts  else 'None'),
-            (' ' + StringUtils.toUnicode(modelInfo)) if modelInfo else '')
+            (' %s' % modelInfo) if modelInfo else '')
 
 
