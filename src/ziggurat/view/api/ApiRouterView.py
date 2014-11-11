@@ -60,7 +60,7 @@ class ApiRouterView(ZigguratDataView):
     def category(self):
         try:
             return self._request.matchdict['category']
-        except Exception as err:
+        except Exception:
             return None
 
 #___________________________________________________________________________________________________ GS: action
@@ -71,7 +71,7 @@ class ApiRouterView(ZigguratDataView):
             if reqID.startswith('_'):
                 return None
             return reqID
-        except Exception as err:
+        except Exception:
             return None
 
 #___________________________________________________________________________________________________ GS: incomingTimecode

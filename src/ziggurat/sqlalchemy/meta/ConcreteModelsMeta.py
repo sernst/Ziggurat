@@ -1,9 +1,8 @@
 # ConcreteModelsMeta.py
-# (C)2011-2013
+# (C)2011-2014
 # Scott Ernst and Eric David Wills
 
 from pyaid.dict.DictUtils import DictUtils
-from pyaid.string.StringUtils import StringUtils
 from sqlalchemy import exc
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,6 +13,7 @@ from ziggurat.sqlalchemy.ExternalKeyProperty import ExternalKeyProperty
 from ziggurat.sqlalchemy.SqlAlchemyResult import SqlAlchemyResult
 from ziggurat.sqlalchemy.meta.AbstractModelsMeta import AbstractModelsMeta
 from ziggurat.sqlalchemy.session.SqlAlchemyMasterSession import SqlAlchemyMasterSession
+
 
 # AS NEEDED: from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 # AS NEEDED: from ziggurat.sqlalchemy.session.SqlAlchemySlaveSession import SqlAlchemySlaveSession
@@ -29,7 +29,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
     _sessions = dict()
 
 #___________________________________________________________________________________________________ __new__
-    def __new__(cls, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs):
         from ziggurat.sqlalchemy.ZigguratModelUtils import ZigguratModelUtils
 
         module      = attrs['__module__']
@@ -100,10 +100,10 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         declaredBase = (attrs['_BASE'],)
         try:
             bases = bases + declaredBase
-        except Exception as err:
+        except Exception:
             bases = declaredBase
 
-        return AbstractModelsMeta.__new__(cls, name, bases, attrs)
+        return AbstractModelsMeta.__new__(mcs, name, bases, attrs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T
@@ -111,17 +111,17 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 #___________________________________________________________________________________________________ GS: __databasename__
     @property
     def __databasename__(cls):
-        return cls._DATABASE.name
+        return getattr(cls, '_DATABASE').name
 
 #___________________________________________________________________________________________________ GS: __modelname__
     @property
     def __modelname__(cls):
-        return cls._MODEL_NAME
+        return getattr(cls, '_MODEL_NAME')
 
 #___________________________________________________________________________________________________ GS: session
     @property
     def session(cls):
-        return cls._session if cls.IS_MASTER else None
+        return getattr(cls, '_session') if getattr(cls, 'IS_MASTER') else None
 
 #===================================================================================================
 #                                                                                     P U B L I C
@@ -131,7 +131,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         s    = 'DEBUG: %s\n\tSUPER CLASSES:' % cls.__name__
         base = None
         for b in cls.__bases__:
-            s += '\n\t\t%s(%s)' % (str(b.__name__), str(b.__module__))
+            s += '\n\t\t%s(%s)' % (b.__name__, b.__module__)
             if b.__module__ == 'sqlalchemy.ext.declarative':
                 base = b
 
@@ -140,7 +140,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
 
         s += '\n\tMODEL REGISTRY:'
         for n,v in DictUtils.iter(base._decl_class_registry):
-            s += '\n\t\t' + str(n) + '(' + str(v.__module__) + ')'
+            s += '\n\t\t%s(%s)' % (str(n), str(v.__module__))
 
         return s
 
@@ -168,12 +168,12 @@ class ConcreteModelsMeta(AbstractModelsMeta):
             return cls._session.createQuery(*args if args else [cls])
         except Exception as err:
             AbstractModelsMeta.logger.writeError([
-                'Query Creation Failure: ' + StringUtils.toUnicode(cls.__name__),
-                'META: ' + StringUtils.toUnicode(cls.__base__.metadata),
-                'REGISTRY: ' + StringUtils.toUnicode(cls.__base__._decl_class_registry),
-                'ENGINES: ' + StringUtils.toUnicode(ConcreteModelsMeta._engines),
-                'SESSIONS: ' + StringUtils.toUnicode(ConcreteModelsMeta._sessions),
-                'ABSTRACT REGISTRY: ' + StringUtils.toUnicode(AbstractModelsMeta._registry) ], err)
+                'Query Creation Failure: %s' % cls.__name__,
+                'META: %s' % cls.__base__.metadata,
+                'REGISTRY: %s' % cls.__base__._decl_class_registry,
+                'ENGINES: %s' % ConcreteModelsMeta._engines,
+                'SESSIONS: %s' % ConcreteModelsMeta._sessions,
+                'ABSTRACT REGISTRY: %s' % AbstractModelsMeta._registry ], err)
             raise err
 
 #___________________________________________________________________________________________________ createResult
@@ -207,7 +207,7 @@ class ConcreteModelsMeta(AbstractModelsMeta):
         # Get the database name from the module path.
         prefix  = module[:module.rfind('.')]
         package = prefix[prefix.rfind('.') + 1:]
-        return (package, isMaster)
+        return package, isMaster
 
 #===================================================================================================
 #                                                                                   P A C K A G E

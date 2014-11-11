@@ -26,7 +26,7 @@ class AbstractModelsMeta(DeclarativeMeta):
     logger    = ServerLogger('SqlAlchemyModels')
 
 #___________________________________________________________________________________________________ __new__
-    def __new__(cls, name, bases, attrs):
+    def __new__(mcs, name, bases, attrs):
         for n, v in attrs.items():
             attrName = n[1:]
             if isinstance(v, Column) and n.startswith('_') and not attrs.has_key(attrName):
@@ -46,7 +46,7 @@ class AbstractModelsMeta(DeclarativeMeta):
                     attrs[info['get']] = property(
                         ExternalKeyProperty(attrName, info['model'], columnName) )
 
-        return DeclarativeMeta.__new__(cls, name, bases, attrs)
+        return DeclarativeMeta.__new__(mcs, name, bases, attrs)
 
 #===================================================================================================
 #                                                                                   G E T / S E T

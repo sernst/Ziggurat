@@ -197,8 +197,8 @@ class ZigguratApplication(object):
         except Exception as err:
             self.logger.writeError([
                 'ERROR: Application Creation Failed',
-                'ARGS: ' + StringUtils.toUnicode(args),
-                'KWARGS: ' + StringUtils.toUnicode(kwargs) ], err)
+                'ARGS: %s' % args,
+                'KWARGS: %s' % DictUtils.prettyPrint(kwargs) ], err)
             raise
 
 #___________________________________________________________________________________________________ __repr__

@@ -182,14 +182,14 @@ class ZigguratBaseView(object):
         if self.ziggurat.strEncodeEnviron:
             for n, v in DictUtils.iter(response.headers):
                 if StringUtils.isStringType(v):
-                    response.headers[n] = v.encode()
+                    response.headers[n] = StringUtils.toStr2(v)
 
         # Clean up per-thread sessions.
         ConcreteModelsMeta.cleanupSessions()
 
 #___________________________________________________________________________________________________ _handleFinishedCallback
     def _handleFinishedCallback(self, request):
-        '''commit or abort the transaction associated with request'''
+        """commit or abort the transaction associated with request"""
         if request.exception is not None:
             transaction.abort()
         else:
