@@ -39,7 +39,9 @@ class StandardConfigurator(Configurator):
         self._isPopulated     = False
         self._app             = app
         self._rootViewPackage = rootViewPackage
-        self.add_request_method(self._getMyAppRequestProperty, 'ziggurat', reify=True)
+        self.add_request_method(
+            self._getMyAppRequestProperty,
+            StringUtils.toStrStr('ziggurat'), reify=True)
 
 #===================================================================================================
 #                                                                                   G E T / S E T

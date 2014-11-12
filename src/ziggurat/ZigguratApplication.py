@@ -9,6 +9,7 @@ import os
 from pyaid.ArgsUtils import ArgsUtils
 from pyaid.dict.DictUtils import DictUtils
 from pyaid.file.FileUtils import FileUtils
+from pyaid.list.ListUtils import ListUtils
 from pyaid.string.StringUtils import StringUtils
 from pyaid.threading.ThreadUtils import ThreadUtils
 
@@ -196,7 +197,7 @@ class ZigguratApplication(object):
         except Exception as err:
             self.logger.writeError([
                 'ERROR: Application Creation Failed',
-                'ARGS: %s' % args,
+                'ARGS: %s' % ListUtils.prettyPrint(args),
                 'KWARGS: %s' % DictUtils.prettyPrint(kwargs) ], err)
             raise
 

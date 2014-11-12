@@ -3,6 +3,7 @@
 # Scott Ernst
 
 from __future__ import print_function, absolute_import, unicode_literals, division
+from pyaid.dict.DictUtils import DictUtils
 from pyaid.string.StringUtils import StringUtils
 
 from pyramid.renderers import render_to_response
@@ -33,6 +34,7 @@ class ZigguratDataView(ZigguratBaseView):
         if isinstance(self._response, Response) or StringUtils.isStringType(self._response):
             return self._response
 
+        DictUtils.cleanBytesToText(self._response, inPlace=True)
         return render_to_response('json', self._response, self._request)
 
 #___________________________________________________________________________________________________ _createExplicitResponse

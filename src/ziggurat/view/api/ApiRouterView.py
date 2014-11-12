@@ -10,6 +10,7 @@ from pyaid.ArgsUtils import ArgsUtils
 from pyaid.ClassUtils import ClassUtils
 from pyaid.dict.DictUtils import DictUtils
 from pyaid.json.JSON import JSON
+from pyaid.string.StringUtils import StringUtils
 from pyaid.time.TimeUtils import TimeUtils
 
 from ziggurat.view.ZigguratDataView import ZigguratDataView
@@ -42,7 +43,7 @@ class ApiRouterView(ZigguratDataView):
                 self._zargs = None
         else:
             self._zargs = None
-        self._signature = self.getArg('sig', '')
+        self._signature = StringUtils.toUnicode(self.getArg('sig', ''))
 
         self._incomingTimestamp = None
         self._outgoingTimestamp = None

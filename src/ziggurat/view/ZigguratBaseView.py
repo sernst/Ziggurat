@@ -35,9 +35,6 @@ class ZigguratBaseView(object):
         self._cacheControlPublic = False
         self._etag               = None
         self._explicitResponse   = None
-        self._report             = None
-        self._checkGlobalAlerts  = False
-        self._renderFlags        = None
 
         # Event called when the response object is ready.
         self._request.add_response_callback(self._handleResponseReady)
