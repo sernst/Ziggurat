@@ -24,9 +24,11 @@ class ServerLogger(Logger):
     _INITIALS_RX = re.compile('[^A-Z]+')
 
 #___________________________________________________________________________________________________ __init__
-    def __init__(self, name =None, **kwargs):
+    def __init__(self, name =None, app =None, **kwargs):
         """Initializes settings."""
-        self._app = ArgsUtils.extract('app', None, kwargs)
+        self._app = app
+
+        ArgsUtils.addIfMissing('headerless', False, kwargs)
         if self._app is None:
             super(ServerLogger, self).__init__(name, printOut=True, **kwargs)
             return

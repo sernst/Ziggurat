@@ -54,11 +54,15 @@ class AbstractModelsMeta(DeclarativeMeta):
 #___________________________________________________________________________________________________ GS: MASTER
     @property
     def MASTER(cls):
+        if getattr(cls, 'MODEL_TYPE') == 'MASTER':
+            return cls
         return cls.getModel('MASTER')
 
 #___________________________________________________________________________________________________ GS: SLAVE
     @property
     def SLAVE(cls):
+        if getattr(cls, 'MODEL_TYPE') == 'SLAVE':
+            return cls
         return cls.getModel('SLAVE')
 
 #===================================================================================================
@@ -82,6 +86,7 @@ class AbstractModelsMeta(DeclarativeMeta):
             name, (cls,), {
                 '__module__':cls.__module__,
                 'IS_MASTER':isMaster,
+                'MODEL_TYPE':modelType,
                 'ormReconstructor':orm.reconstructor(reconstructor) })
 
         return this._registry[name]
